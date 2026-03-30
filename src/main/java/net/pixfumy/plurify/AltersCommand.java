@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.pixfumy.plurify.gui.MainAltersGui;
 
 public class AltersCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {

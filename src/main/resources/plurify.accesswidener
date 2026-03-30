@@ -1,0 +1,5 @@
+accessWidener v1 named
+accessible class net/minecraft/storage/NbtWriteView
+accessible class net/minecraft/storage/NbtWriteView$NbtListAppender
+accessible class net/minecraft/storage/NbtReadView
+accessible class net/minecraft/storage/NbtReadView$NbtListReadView

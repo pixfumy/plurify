@@ -1,14 +1,25 @@
 package net.pixfumy.plurify;
 
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.text.Text;
-
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.UUID;
 
 public interface IAltersOwner {
-    List<Alter> getAlters();
+    Alter plurify$getCurrentAlter();
 
-    void setAlters(List<Alter> alters);
+    void plurify$setCurrentAlter(Alter currentAlter);
+
+    HashMap<UUID, Alter> plurify$getAlters();
+
+    void plurify$setAlters(HashMap<UUID, Alter> alters);
+
+    void plurify$addToAlters(Alter alter);
+
+    void plurify$removeFromAlters(Alter alter);
+
+    void plurify$switchToAlter(Alter alter);
+
+    boolean plurify$isClientLoaded();
+
+    void plurify$setClientLoaded(boolean isClientLoaded);
 }

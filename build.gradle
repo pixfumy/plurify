@@ -28,6 +28,7 @@ loom {
 		}
 	}
 
+	accessWidenerPath = file("src/main/resources/plurify.accesswidener")
 }
 
 dependencies {
@@ -40,7 +41,9 @@ dependencies {
 	Set<String> fabricApiModules = [
 			'fabric-api-base',
 			'fabric-networking-api-v1',
-			'fabric-lifecycle-events-v1'
+			'fabric-lifecycle-events-v1',
+			'fabric-key-binding-api-v1',
+			'fabric-resource-loader-v1'
 	]
 
     // Add each fabric API module as a dependency
@@ -48,7 +51,7 @@ dependencies {
 		modImplementation include(fabricApi.module(it, project.fabric_api_version))
 	}
 
-	implementation 'net.minidev:json-smart:2.5.2'
+	implementation include("com.konghq:unirest-java:3.11.09:standalone")
 }
 
 processResources {
