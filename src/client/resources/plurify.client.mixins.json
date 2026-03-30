@@ -1,11 +1,15 @@
 {
-	"required": true,
-	"package": "net.pixfumy.plurify.mixin.client",
-	"compatibilityLevel": "JAVA_21",
-	"client": [
-      "ExampleClientMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	}
+  "required": true,
+  "package": "net.pixfumy.plurify.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  },
+  "mixins": [
+    "SkinMixin",
+    "PlayerSkinTextureDownloaderAccess"
+  ]
 }

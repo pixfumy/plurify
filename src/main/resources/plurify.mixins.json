@@ -1,15 +1,16 @@
 {
-	"required": true,
-	"package": "net.pixfumy.plurify.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"CommandManagerMixin",
-		"PlayerAltersMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	},
-	"overwrites": {
-		"requireAnnotations": true
+  "required": true,
+  "package": "net.pixfumy.plurify.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "CommandManagerMixin",
+    "PlayerAltersMixin",
+    "access.PlayerInventoryAccess"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
 	}
 }
