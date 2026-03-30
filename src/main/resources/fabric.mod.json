@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "plurify",
+	"version": "${version}",
+	"name": "Plurify",
+	"description": "Per-alter characters for DID systems.",
+	"authors": [
+		"pixfumy"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "LGPL-3.0",
+	"icon": "assets/plurify/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.pixfumy.plurify.Plurify"
+		],
+		"client": [
+		  "net.pixfumy.plurify.ExampleModClient"
+		]
+	},
+	"mixins": [
+		"plurify.mixins.json",
+		{
+			"config": "plurify.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.18.2",
+		"minecraft": "~1.21.11",
+		"java": ">=21"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
