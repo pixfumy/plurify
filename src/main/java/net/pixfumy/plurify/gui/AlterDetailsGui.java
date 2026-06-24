@@ -154,7 +154,10 @@ public class AlterDetailsGui extends SimpleGui {
         changeSkinStack.set(DataComponentTypes.ITEM_NAME, Text.translatable("plurify.gui.alter_details_gui.change_skin"));
         if (((IAltersOwner) player).plurify$isClientLoaded()) {
             this.setSlot(50, changeSkinStack, ((i, clickType, slotActionType) ->
-                    ServerPlayNetworking.send(player, new OpenAlterSkinScreenS2CPayload(alter.getName().getString(), alter.getUuid().toString()))));
+                    {
+                        this.close();
+                        ServerPlayNetworking.send(player, new OpenAlterSkinScreenS2CPayload(alter.getName().getString(), alter.getUuid().toString()));
+                    }));
         } else {
             changeSkinStack.set(DataComponentTypes.LORE, LoreComponent.DEFAULT.with(
                     Text.translatable("plurify.gui.alter_details_gui.change_skin.disabled")

@@ -5,12 +5,18 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.pixfumy.plurify.gui.AlterDetailsGui;
+import net.pixfumy.plurify.gui.MainAltersGui;
+import net.pixfumy.plurify.networking.CloseAlterSkinScreenC2SPayload;
 import net.pixfumy.plurify.networking.OpenAlterSkinScreenS2CPayload;
 import net.pixfumy.plurify.networking.PlayerSwitchAlterS2CPacket;
 import net.pixfumy.plurify.networking.PlurifyHandshakeC2SPayload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.UUID;
 
 public class PlurifyMain implements ModInitializer {
 	public static final String MOD_ID = "plurify";
@@ -24,6 +30,7 @@ public class PlurifyMain implements ModInitializer {
 		PayloadTypeRegistry.playS2C().register(OpenAlterSkinScreenS2CPayload.ID, OpenAlterSkinScreenS2CPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(PlayerSwitchAlterS2CPacket.ID, PlayerSwitchAlterS2CPacket.CODEC);
 		PayloadTypeRegistry.playC2S().register(PlurifyHandshakeC2SPayload.ID, PlurifyHandshakeC2SPayload.CODEC);
+		PayloadTypeRegistry.playC2S().register(CloseAlterSkinScreenC2SPayload.ID, CloseAlterSkinScreenC2SPayload.CODEC);
 
 		ServerPlayConnectionEvents.JOIN.register((serverPlayNetworkHandler, packetSender, minecraftServer) -> {
 			ServerPlayerEntity player = serverPlayNetworkHandler.player;
@@ -35,6 +42,16 @@ public class PlurifyMain implements ModInitializer {
 
 		ServerPlayNetworking.registerGlobalReceiver(PlurifyHandshakeC2SPayload.ID, ((plurifyHandshakeC2SPayload, context) -> {
 			((IAltersOwner) context.player()).plurify$setClientLoaded(true);
+		}));
+
+		ServerPlayNetworking.registerGlobalReceiver(CloseAlterSkinScreenC2SPayload.ID, ((closeAlterSkinScreenC2SPayload, context) -> {
+			ServerPlayerEntity player = context.player();
+
+			Alter selectedAlter = ((IAltersOwner) context.player()).plurify$getAlters().getOrDefault(
+					UUID.fromString(closeAlterSkinScreenC2SPayload.alterUuid()),
+					((IAltersOwner) context.player()).plurify$getCurrentAlter());
+
+			new AlterDetailsGui(player, selectedAlter, new MainAltersGui(player)).open();
 		}));
 	}
 

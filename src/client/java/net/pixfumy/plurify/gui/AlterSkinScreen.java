@@ -1,13 +1,11 @@
 package net.pixfumy.plurify.gui;
 
 import com.mojang.authlib.GameProfile;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.input.MouseInput;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.OtherClientPlayerEntity;
@@ -16,13 +14,12 @@ import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.state.EntityRenderState;
 import net.minecraft.client.render.entity.state.LivingEntityRenderState;
 import net.minecraft.client.texture.NativeImage;
-import net.minecraft.entity.player.PlayerSkinType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 import net.pixfumy.plurify.ISkinOwner;
 import net.pixfumy.plurify.MojangSkinChangeHelper;
 import net.pixfumy.plurify.SkinsIOHelper;
-import net.pixfumy.plurify.mixin.PlayerSkinTextureDownloaderAccess;
+import net.pixfumy.plurify.networking.CloseAlterSkinScreenC2SPayload;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -39,6 +36,7 @@ public class AlterSkinScreen extends Screen {
     private int frame = 0;
     private ButtonWidget switchClientButton;
     private ButtonWidget switchGlobalButton;
+    private ButtonWidget doneButton;
 
     private NativeImage skinAsNativeImage;
 
@@ -76,6 +74,14 @@ public class AlterSkinScreen extends Screen {
 
         switchGlobalButton.active = skinAsNativeImage != null;
         this.addDrawableChild(switchGlobalButton);
+
+        this.doneButton = ButtonWidget.builder(Text.translatable("gui.done"),
+                        button -> this.close())
+                .position(width / 2 - 50, height - 50)
+                .size(100, 20)
+                .build();
+
+        this.addDrawableChild(doneButton);
     }
 
     @Override
@@ -105,6 +111,7 @@ public class AlterSkinScreen extends Screen {
 
     @Override
     public void close() {
+        ClientPlayNetworking.send(new CloseAlterSkinScreenC2SPayload(alterId));
         super.close();
     }
 
