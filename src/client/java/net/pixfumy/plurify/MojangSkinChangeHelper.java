@@ -13,6 +13,7 @@ import net.minecraft.client.network.ClientLoginNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
+import net.minecraft.datafixer.fix.TextFixes;
 import net.minecraft.entity.player.PlayerSkinType;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkPhase;
@@ -20,7 +21,11 @@ import net.minecraft.network.packet.c2s.handshake.ConnectionIntent;
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket;
 import net.minecraft.network.packet.c2s.login.LoginHelloC2SPacket;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableTextContent;
+import net.minecraft.util.Colors;
+import net.minecraft.util.Formatting;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -42,17 +47,15 @@ public class MojangSkinChangeHelper {
                 .asString();
 
         if (httpResponse.isSuccess()) {
-
-            player.networkHandler.sendChatCommand("tellraw @s \"Global skin successfully changed.\"");
-
             ServerInfo serverInfo = minecraftClient.getCurrentServerEntry();
             if (minecraftClient.getServer() == null && (serverInfo == null || !serverInfo.isLocal())) {
-                MinecraftClient.getInstance().disconnect(Text.literal("Changing Skin"));
+                MinecraftClient.getInstance().disconnect(Text.translatable("plurify.skin_change_helper.server_restart_message"));
                 ConnectScreen.connect(minecraftClient.currentScreen, minecraftClient, ServerAddress.parse(serverInfo.address), serverInfo, false, null);
+                player.sendMessage(Text.translatable("plurify.skin_change_helper.change_success").withColor(Colors.GREEN), false);
             }
         } else {
             PlurifyClient.LOGGER.info("Error changing global skin to " + skinFile + ". Got back response " + httpResponse.getStatus());
-            player.networkHandler.sendChatCommand("tellraw @s \"Error changing global skin. Mojang servers may be unavailable.\"");
+            player.sendMessage(Text.translatable("plurify.skin_change_helper.change_fail").withColor(Colors.RED), false);
         }
     }
 }

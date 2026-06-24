@@ -24,12 +24,15 @@ public class ChangeAlterIconGui extends SimpleGui {
     public ChangeAlterIconGui(ServerPlayerEntity player, Alter alter, AlterDetailsGui alterDetailsGui) {
         super(ScreenHandlerType.GENERIC_9X6, player, true);
         this.alter = alter;
-        setTitle(Text.literal("Change Icon for " + alter.getName().getString()));
+        setTitle(Text.translatable("plurify.gui.change_alter_icon_gui.title", alter.getName().getString()));
 
         // alter inventory
         for (int i = 0; i < 36; i++) {
             ItemStack inventoryStack = alter.getPlayerInventory().getStack(i).copy();
-            inventoryStack.set(DataComponentTypes.ITEM_NAME, Text.literal(inventoryStack.getName().getString() + " (Slot " + i + ")"));
+
+            inventoryStack.set(DataComponentTypes.ITEM_NAME,
+                    Text.translatable("plurify.gui.alter_details_gui.inventory_slot", inventoryStack.getName().getString(), i));
+
             if (i < 9) {
                 this.setSlot(i + 81, inventoryStack);
             } else {
@@ -47,7 +50,7 @@ public class ChangeAlterIconGui extends SimpleGui {
 
         // back to AlterDetailsGui
         ItemStack backArrow = Items.ARROW.getDefaultStack();
-        backArrow.set(DataComponentTypes.ITEM_NAME, Text.literal("Back to Alter Details"));
+        backArrow.set(DataComponentTypes.ITEM_NAME, Text.translatable("plurify.gui.alter_details_gui.back_to_alter_details"));
         this.setSlot(53, backArrow, (i, clickType, slotActionType) -> {
             alterDetailsGui.open();
         });

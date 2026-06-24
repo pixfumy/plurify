@@ -52,7 +52,7 @@ public class AlterSkinScreen extends Screen {
 
     @Override
     public void init() {
-        this.switchClientButton = ButtonWidget.builder(Text.literal("Switch - Client Only"),
+        this.switchClientButton = ButtonWidget.builder(Text.translatable("plurify.gui.alter_skin_screen.switch_client_only"),
                         button -> ((ISkinOwner) player).plurify$setCustomSkin(this.skinAsNativeImage, alterId))
                 .position(width / 2 - 60, 63)
                 .size(120, 20)
@@ -61,7 +61,7 @@ public class AlterSkinScreen extends Screen {
         switchClientButton.active = false;
         this.addDrawableChild(switchClientButton);
 
-        this.switchGlobalButton = ButtonWidget.builder(Text.literal("Switch Globally"), button -> {
+        this.switchGlobalButton = ButtonWidget.builder(Text.translatable("plurify.gui.alter_skin_screen.switch_globally"), button -> {
 
             ((ISkinOwner) player).plurify$setCustomSkin(this.skinAsNativeImage, alterId);
 
@@ -82,19 +82,19 @@ public class AlterSkinScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 20, Colors.WHITE);
-        context.drawCenteredTextWithShadow(this.textRenderer, Text.literal("Drag and drop skin .png here to preview"), this.width / 2, 32, Colors.WHITE);
+        context.drawCenteredTextWithShadow(this.textRenderer, Text.translatable("plurify.gui.alter_skin_screen.drag_and_drop"), this.width / 2, 32, Colors.WHITE);
 
         // Render preview
         context.fill(25,  60, 150, height - 50, Colors.BLACK);
         context.drawStrokedRectangle(25,  60, 125, height - 110, Colors.WHITE);
         drawEntity(context, 25, 60, 150, height/2 + 56, 50, previewPlayer);
-        context.drawCenteredTextWithShadow(this.textRenderer, Text.literal("Switching to..."), 87, 45, Colors.WHITE);
+        context.drawCenteredTextWithShadow(this.textRenderer, Text.translatable("plurify.gui.alter_skin_screen.preview_skin"), 87, 45, Colors.WHITE);
 
         // Render current player skin
         context.fill(width - 150,  60, width - 25, height - 50, Colors.BLACK);
         context.drawStrokedRectangle(width - 150,  60, 125, height - 110, Colors.WHITE);
         drawEntity(context,  width - 150,  60,  width - 25,  height - 50, 55, player);
-        context.drawCenteredTextWithShadow(this.textRenderer, Text.literal("Currently Selected"), width - 150 + 62, 45, Colors.YELLOW);
+        context.drawCenteredTextWithShadow(this.textRenderer, Text.translatable("plurify.gui.alter_skin_screen.current_skin"), width - 150 + 62, 45, Colors.YELLOW);
         ++frame;
     }
 

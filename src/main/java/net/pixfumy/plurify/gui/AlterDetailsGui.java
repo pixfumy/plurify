@@ -45,7 +45,10 @@ public class AlterDetailsGui extends SimpleGui {
         // main inventory
         for (int i = 0; i < 36; i++) {
             ItemStack inventoryStack = alter.getPlayerInventory().getStack(i).copy();
-            inventoryStack.set(DataComponentTypes.ITEM_NAME, Text.literal(inventoryStack.getName().getString() + " (Slot " + i + ")"));
+
+            inventoryStack.set(DataComponentTypes.ITEM_NAME,
+                    Text.translatable("plurify.gui.alter_details_gui.inventory_slot", inventoryStack.getName().getString(), i));
+
             if (i < 9) {
                 this.setSlot(i + 81, inventoryStack);
             } else {
@@ -65,13 +68,19 @@ public class AlterDetailsGui extends SimpleGui {
         // armour
         for (int i = 0; i < 4; i++) {
             ItemStack armourStack = alter.getPlayerInventory().getStack(36 + i).copy();
-            armourStack.set(DataComponentTypes.ITEM_NAME, Text.literal(armourStack.getName().getString() + " (" + ARMOR_SLOTS[i].getName() + " slot)"));
+
+            armourStack.set(DataComponentTypes.ITEM_NAME,
+                    Text.translatable("plurify.gui.alter_details_gui.armor_slot." + ARMOR_SLOTS[i].getName(),
+                            armourStack.getName().getString()));
+
             this.setSlot(27 - i * 9, armourStack);
         }
 
         // offhand slot
         ItemStack offhandStack = alter.getPlayerInventory().getStack(40).copy();
-        offhandStack.set(DataComponentTypes.ITEM_NAME, Text.literal(offhandStack.getName().getString() + " (Offhand slot)"));
+        offhandStack.set(DataComponentTypes.ITEM_NAME,
+                Text.translatable("plurify.gui.alter_details_gui.offhand_slot", offhandStack.getName().getString()));
+
         this.setSlot(31, offhandStack);
 
         // green glass panes to separate action bar from player inventory
@@ -83,7 +92,7 @@ public class AlterDetailsGui extends SimpleGui {
 
         // switch to alter
         ItemStack switchToPlayerStack = Items.ENDER_PEARL.getDefaultStack();
-        switchToPlayerStack.set(DataComponentTypes.ITEM_NAME, Text.literal("Switch to this Alter"));
+        switchToPlayerStack.set(DataComponentTypes.ITEM_NAME, Text.translatable("plurify.gui.alter_details_gui.switch_to_alter"));
         switchToPlayerStack.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
         this.setSlot(11, switchToPlayerStack, ((i, clickType, slotActionType)
                 -> ((IAltersOwner)player).plurify$switchToAlter(alter)));
@@ -92,23 +101,23 @@ public class AlterDetailsGui extends SimpleGui {
 
         // Rename this Alter
         ItemStack renameStack = Items.OAK_SIGN.getDefaultStack();
-        renameStack.set(DataComponentTypes.ITEM_NAME, Text.literal("Rename Alter"));
+        renameStack.set(DataComponentTypes.ITEM_NAME, Text.translatable("plurify.gui.alter_details_gui.rename_alter"));
         this.setSlot(46, renameStack, (i, clickType, slotActionType) -> {
                     new NameAlterGui(player, alter, this).open();
         });
 
         // Change Icon
         ItemStack changeIconStack = Items.PAINTING.getDefaultStack();
-        changeIconStack.set(DataComponentTypes.ITEM_NAME, Text.literal("Change Alter Icon"));
+        changeIconStack.set(DataComponentTypes.ITEM_NAME, Text.translatable("plurify.gui.alter_details_gui.change_alter_icon"));
         this.setSlot(47, changeIconStack, ((i, clickType, slotActionType) ->
                 new ChangeAlterIconGui(player, alter, this).open()));
 
         // Delete Alter
         ItemStack deleteAlterStack = Items.LAVA_BUCKET.getDefaultStack();
-        deleteAlterStack.set(DataComponentTypes.ITEM_NAME, Text.literal("Delete Alter"));
+        deleteAlterStack.set(DataComponentTypes.ITEM_NAME, Text.translatable("plurify.gui.alter_details_gui.delete_alter"));
         if (alter.isCurrentAlter()) {
             deleteAlterStack.set(DataComponentTypes.LORE,
-                    LoreComponent.DEFAULT.with(Text.literal("Cannot delete alter because it is currently selected.")
+                    LoreComponent.DEFAULT.with(Text.translatable("plurify.gui.alter_details_gui.delete_alter.disabled")
                             .setStyle(Style.EMPTY.withColor(Formatting.RED))));
             ItemStack barrier = deleteAlterStack.copy();
             barrier.set(DataComponentTypes.ITEM_MODEL, Items.BARRIER.getDefaultStack().get(DataComponentTypes.ITEM_MODEL));
@@ -124,23 +133,31 @@ public class AlterDetailsGui extends SimpleGui {
 
         // Last Seen at
         ItemStack lastSeenStack = Items.COMPASS.getDefaultStack();
-        lastSeenStack.set(DataComponentTypes.ITEM_NAME, Text.literal("Last Seen:"));
+        lastSeenStack.set(DataComponentTypes.ITEM_NAME, Text.translatable("plurify.gui.alter_details_gui.last_seen.name"));
         Vec3d alterPos = alter.getPosition();
-        LoreComponent positionComponent = LoreComponent.DEFAULT
-                .with(Text.literal("%d %d %d".formatted((int) alterPos.x, (int) alterPos.y, (int) alterPos.z)
-                        .concat(" in " + alter.getWorld().getRegistryKey().getValue())));
+
+        LoreComponent positionComponent = LoreComponent.DEFAULT.with(
+                Text.translatable("plurify.gui.alter_details_gui.last_seen.description",
+                        (int) alterPos.x,
+                        (int) alterPos.y,
+                        (int) alterPos.z,
+                        Text.translatable("plurify.gui.alter_details_gui.last_seen.dimension."
+                                + alter.getWorld().getRegistryKey().getValue().getPath()).getString()
+                )
+        );
+
         lastSeenStack.set(DataComponentTypes.LORE, positionComponent);
         this.setSlot(49, lastSeenStack);
 
         // change skin
         ItemStack changeSkinStack = Items.PLAYER_HEAD.getDefaultStack();
-        changeSkinStack.set(DataComponentTypes.ITEM_NAME, Text.literal("Change Skin (Requires Plurify Client)"));
+        changeSkinStack.set(DataComponentTypes.ITEM_NAME, Text.translatable("plurify.gui.alter_details_gui.change_skin"));
         if (((IAltersOwner) player).plurify$isClientLoaded()) {
             this.setSlot(50, changeSkinStack, ((i, clickType, slotActionType) ->
                     ServerPlayNetworking.send(player, new OpenAlterSkinScreenS2CPayload(alter.getName().getString(), alter.getUuid().toString()))));
         } else {
             changeSkinStack.set(DataComponentTypes.LORE, LoreComponent.DEFAULT.with(
-                    Text.literal("Plurify mod not detected on this client. Skin changer is disabled.")
+                    Text.translatable("plurify.gui.alter_details_gui.change_skin.disabled")
                             .setStyle(Style.EMPTY.withColor(Formatting.RED))
             ));
             ItemStack barrier = changeSkinStack.copy();
@@ -158,7 +175,7 @@ public class AlterDetailsGui extends SimpleGui {
 
         // back to MainAltersGui
         ItemStack backArrow = Items.ARROW.getDefaultStack();
-        backArrow.set(DataComponentTypes.ITEM_NAME, Text.literal("Back to Alters"));
+        backArrow.set(DataComponentTypes.ITEM_NAME, Text.translatable("plurify.gui.main_alters_gui.back_to_main_alters"));
         this.setSlot(53, backArrow, (i, clickType, slotActionType) -> {
             mainAltersGui.open();
         });
@@ -172,9 +189,10 @@ public class AlterDetailsGui extends SimpleGui {
     private ItemStack getKeepInvIcon(boolean hasKeepInv) {
         ItemStack keepInventoryStack = (hasKeepInv ? Items.GREEN_BUNDLE : Items.RED_BUNDLE).getDefaultStack();
 
-        keepInventoryStack.set(DataComponentTypes.ITEM_NAME, Text.literal("Keep Inventory: ")
-                .append(Text.literal(String.valueOf(hasKeepInv)).setStyle(
-                        Style.EMPTY.withColor(hasKeepInv ? Formatting.GREEN : Formatting.RED))));
+        keepInventoryStack.set(DataComponentTypes.ITEM_NAME,
+                Text.translatable("plurify.gui.alter_details_gui.keep_inventory",
+                        Text.translatable("plurify.gui.alter_details_gui.keep_inventory." + hasKeepInv).getString()
+                ).setStyle(Style.EMPTY.withColor(hasKeepInv ? Formatting.GREEN : Formatting.RED)));
 
         return keepInventoryStack;
     }

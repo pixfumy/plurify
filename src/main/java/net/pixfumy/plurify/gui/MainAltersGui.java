@@ -24,7 +24,7 @@ public class MainAltersGui extends SimpleGui {
 
     public MainAltersGui(ServerPlayerEntity player) {
         super(ScreenHandlerType.GENERIC_9X6, player, false);
-        this.setTitle(Text.literal("Alters"));
+        this.setTitle(Text.translatable("plurify.gui.main_alters_gui.title"));
         if (((IAltersOwner)player).plurify$getAlters().isEmpty()) {
             AltersIOHelper.loadPlayerAltersFromFile(player);
         }
@@ -32,7 +32,7 @@ public class MainAltersGui extends SimpleGui {
         ((IAltersOwner) player).plurify$getCurrentAlter().setAlterEntityDataFromPlayer();
 
         ItemStack addAlterButtonItemStack = Items.EGG.getDefaultStack();
-        addAlterButtonItemStack.set(DataComponentTypes.ITEM_NAME, Text.literal("Add Alter")
+        addAlterButtonItemStack.set(DataComponentTypes.ITEM_NAME, Text.translatable("plurify.gui.main_alters_gui.add_alter")
                 .setStyle(Style.EMPTY.withColor(Formatting.LIGHT_PURPLE)));
 
         this.setSlot(EGG_INDEX, new GuiElement(addAlterButtonItemStack, (i, clickType, slotActionType, slotGuiInterface) -> {
@@ -61,12 +61,12 @@ public class MainAltersGui extends SimpleGui {
 
             Style style = Style.EMPTY.withColor(Formatting.GRAY);
             LoreComponent loreComponent = LoreComponent.DEFAULT
-                    .with(Text.literal("Click to switch").setStyle(style))
-                    .with(Text.literal("Shift + Click to see details").setStyle(style));
+                    .with(Text.translatable("plurify.gui.main_alters_gui.switch_to_alter").setStyle(style))
+                    .with(Text.translatable("plurify.gui.main_alters_gui.go_to_alter_details").setStyle(style));
 
             if (((IAltersOwner)player).plurify$getCurrentAlter() == alter) {
                 alterIcon.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
-                loreComponent = loreComponent.with(Text.literal("Currently Selected"));
+                loreComponent = loreComponent.with(Text.translatable("plurify.gui.main_alters_gui.currently_selected"));
             }
 
             alterIcon.set(DataComponentTypes.LORE, loreComponent);
