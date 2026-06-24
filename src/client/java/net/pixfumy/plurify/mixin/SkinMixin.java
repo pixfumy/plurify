@@ -45,7 +45,7 @@ public abstract class SkinMixin implements ISkinOwner {
         PlayerSkinTextureDownloaderAccess.invokeRemapTexture(skinTextureAsNativeImage, this.alterId);
 
         this.alterId = alterUuid;
-        this.playerSkinType = SkinsIOHelper.determinePlayerSkinType(nativeImage);
+        this.playerSkinType = SkinsIOHelper.determinePlayerSkinType(skinTextureAsNativeImage);
 
         NativeImageBackedTexture nativeImageBackedTexture = new NativeImageBackedTexture(() -> this.alterId, skinTextureAsNativeImage);
         MinecraftClient.getInstance().getTextureManager().registerTexture(Identifier.of("plurify", this.alterId), nativeImageBackedTexture);

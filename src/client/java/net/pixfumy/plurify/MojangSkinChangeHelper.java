@@ -43,7 +43,7 @@ public class MojangSkinChangeHelper {
 
         if (httpResponse.isSuccess()) {
 
-            player.networkHandler.sendChatMessage("Global skin successfully changed to " + skinFile + ".");
+            player.networkHandler.sendChatCommand("tellraw @s \"Global skin successfully changed.\"");
 
             ServerInfo serverInfo = minecraftClient.getCurrentServerEntry();
             if (minecraftClient.getServer() == null && (serverInfo == null || !serverInfo.isLocal())) {
@@ -52,7 +52,7 @@ public class MojangSkinChangeHelper {
             }
         } else {
             PlurifyClient.LOGGER.info("Error changing global skin to " + skinFile + ". Got back response " + httpResponse.getStatus());
-            player.networkHandler.sendChatMessage("Error changing global skin to " + skinFile + ". Mojang servers may be unavailable.");
+            player.networkHandler.sendChatCommand("tellraw @s \"Error changing global skin. Mojang servers may be unavailable.\"");
         }
     }
 }
