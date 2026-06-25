@@ -46,10 +46,14 @@ public class PlurifyMain implements ModInitializer {
 
 		ServerPlayNetworking.registerGlobalReceiver(CloseAlterSkinScreenC2SPayload.ID, ((closeAlterSkinScreenC2SPayload, context) -> {
 			ServerPlayerEntity player = context.player();
+			IAltersOwner playerAsAltersOwner = (IAltersOwner) player;
 
-			Alter selectedAlter = ((IAltersOwner) context.player()).plurify$getAlters().getOrDefault(
+			Alter selectedAlter = playerAsAltersOwner.plurify$getAlters().getOrDefault(
 					UUID.fromString(closeAlterSkinScreenC2SPayload.alterUuid()),
-					((IAltersOwner) context.player()).plurify$getCurrentAlter());
+					((IAltersOwner) context.player()).plurify$getCurrentAlter()
+			);
+
+			playerAsAltersOwner.plurify$switchToAlter(playerAsAltersOwner.plurify$getCurrentAlter());
 
 			new AlterDetailsGui(player, selectedAlter, new MainAltersGui(player)).open();
 		}));
