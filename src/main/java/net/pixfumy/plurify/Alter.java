@@ -6,11 +6,15 @@ import net.minecraft.inventory.EnderChestInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.network.SpawnLocating;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
+import net.minecraft.world.WorldProperties;
 import net.minecraft.world.rule.GameRules;
 import net.pixfumy.plurify.mixin.access.HungerManagerAccess;
 
@@ -25,6 +29,8 @@ public class Alter {
     private EnderChestInventory enderChestInventory;
     private Vec3d position;
     private Vec2f rotation;
+
+    private ServerPlayerEntity.Respawn respawn;
 
     private float health = 20;
 
@@ -61,11 +67,12 @@ public class Alter {
             for (int i = 0; i < player.getEnderChestInventory().size(); i++) {
                 this.enderChestInventory.setStack(i, player.getEnderChestInventory().getStack(i));
             }
+            this.respawn = player.getRespawn();
             this.position = player.getEntityPos();
             this.rotation = player.getRotationClient();
             this.keepInventory = player.getEntityWorld().getGameRules().getValue(GameRules.KEEP_INVENTORY);
         } else {
-            this.position = player.getRespawnTarget(true, TeleportTarget.NO_OP).position();
+            this.position = TeleportTarget.noRespawnPointSet(player, TeleportTarget.NO_OP).position();
             this.rotation = new Vec2f(0, 0);
         }
 
@@ -124,6 +131,14 @@ public class Alter {
 
     public void setRotation(Vec2f rotation) {
         this.rotation = rotation;
+    }
+
+    public ServerPlayerEntity.Respawn getRespawn() {
+        return respawn;
+    }
+
+    public void setRespawn(ServerPlayerEntity.Respawn respawn) {
+        this.respawn = respawn;
     }
 
     public int getFoodTickTimer() {
@@ -230,6 +245,8 @@ public class Alter {
         this.position = this.player.getEntityPos();
         this.rotation = this.player.getRotationClient();
 
+        this.respawn = player.getRespawn();
+
         this.health = this.player.getHealth();
 
         this.experienceProgress = this.player.experienceProgress;
@@ -256,6 +273,8 @@ public class Alter {
         Vec3d alterPos = this.getPosition();
         Vec2f alterRot = this.getRotation();
         this.player.teleport(this.getWorld(), alterPos.x, alterPos.y, alterPos.z, Set.of(), alterRot.y, alterRot.x, false);
+
+        this.player.setSpawnPoint(this.respawn, false);
 
         this.player.setHealth(this.getHealth());
 

@@ -18,6 +18,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ErrorReporter;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
+import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -136,6 +137,8 @@ public class AltersIOHelper {
             alter.setPosition(nbtReadView.read("Position", Vec3d.CODEC).get());
             alter.setRotation(nbtReadView.read("Rotation", Vec2f.CODEC).get());
 
+            alter.setRespawn(nbtReadView.read("Respawn", ServerPlayerEntity.Respawn.CODEC).get());
+
             alter.setHealth(nbtReadView.read("Health", Codec.FLOAT).get());
 
             alter.setExperienceLevel(nbtReadView.read("ExperienceLevel", Codec.INT).get());
@@ -172,6 +175,10 @@ public class AltersIOHelper {
 
         nbtWriteView.put("Position", Vec3d.CODEC, alter.getPosition());
         nbtWriteView.put("Rotation", Vec2f.CODEC, alter.getRotation());
+
+        if (alter.getRespawn() != null) {
+            nbtWriteView.put("Respawn", ServerPlayerEntity.Respawn.CODEC, alter.getRespawn());
+        }
 
         nbtWriteView.put("Health", Codec.FLOAT, alter.getHealth());
 
