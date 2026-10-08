@@ -13,6 +13,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.math.Vec3d;
 import net.pixfumy.plurify.Alter;
 import net.pixfumy.plurify.AltersIOHelper;
@@ -134,15 +135,16 @@ public class AlterDetailsGui extends SimpleGui {
         // Last Seen at
         ItemStack lastSeenStack = Items.COMPASS.getDefaultStack();
         lastSeenStack.set(DataComponentTypes.ITEM_NAME, Text.translatable("plurify.gui.alter_details_gui.last_seen.name"));
-        Vec3d alterPos = alter.getPosition();
+        GlobalPos alterPos = alter.getPosition();
 
         LoreComponent positionComponent = LoreComponent.DEFAULT.with(
                 Text.translatable("plurify.gui.alter_details_gui.last_seen.description",
-                        (int) alterPos.x,
-                        (int) alterPos.y,
-                        (int) alterPos.z,
+                        alterPos.pos().getX(),
+                        alterPos.pos().getY(),
+                        alterPos.pos().getZ(),
                         Text.translatable("plurify.gui.alter_details_gui.last_seen.dimension."
-                                + alter.getWorld().getRegistryKey().getValue().getPath()).getString()
+                                + alterPos.dimension().getValue().getPath()
+                        )
                 )
         );
 

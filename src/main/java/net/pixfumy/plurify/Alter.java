@@ -5,6 +5,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.EnderChestInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.SpawnLocating;
 import net.minecraft.server.world.ServerWorld;
@@ -14,6 +15,7 @@ import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldProperties;
 import net.minecraft.world.rule.GameRules;
 import net.pixfumy.plurify.mixin.access.HungerManagerAccess;
@@ -27,7 +29,7 @@ public class Alter {
     private ServerPlayerEntity player;
     private PlayerInventory playerInventory;
     private EnderChestInventory enderChestInventory;
-    private Vec3d position;
+    private GlobalPos position;
     private Vec2f rotation;
 
     private ServerPlayerEntity.Respawn respawn;
@@ -61,22 +63,16 @@ public class Alter {
         this.enderChestInventory = new EnderChestInventory();
 
         if (copyEntityDataFromPlayer) {
-            for (int i = 0; i < player.getInventory().size(); i++) {
-                this.playerInventory.setStack(i, player.getInventory().getStack(i));
-            }
-            for (int i = 0; i < player.getEnderChestInventory().size(); i++) {
-                this.enderChestInventory.setStack(i, player.getEnderChestInventory().getStack(i));
-            }
-            this.respawn = player.getRespawn();
-            this.position = player.getEntityPos();
-            this.rotation = player.getRotationClient();
+            setAlterEntityDataFromPlayer();
             this.keepInventory = player.getEntityWorld().getGameRules().getValue(GameRules.KEEP_INVENTORY);
         } else {
-            this.position = TeleportTarget.noRespawnPointSet(player, TeleportTarget.NO_OP).position();
+            this.position = new GlobalPos(
+                    player.getEntityWorld().getServer().getSpawnWorld().getRegistryKey(),
+                    BlockPos.ofFloored(TeleportTarget.noRespawnPointSet(player, TeleportTarget.NO_OP).position())
+            );
             this.rotation = new Vec2f(0, 0);
         }
 
-        this.world = player.getEntityWorld().getServer().getOverworld();
         this.icon = Items.MAGENTA_DYE;
     }
 
@@ -117,11 +113,11 @@ public class Alter {
         this.enderChestInventory = enderChestInventory;
     }
 
-    public Vec3d getPosition() {
+    public GlobalPos getPosition() {
         return position;
     }
 
-    public void setPosition(Vec3d position) {
+    public void setPosition(GlobalPos position) {
         this.position = position;
     }
 
@@ -205,20 +201,12 @@ public class Alter {
         this.health = health;
     }
 
-    public ServerWorld getWorld() {
-        return world;
-    }
-
     public boolean hasKeepInventory() {
         return keepInventory;
     }
 
     public void setKeepInventory(boolean keepInventory) {
         this.keepInventory = keepInventory;
-    }
-
-    public void setWorld(ServerWorld world) {
-        this.world = world;
     }
 
     public Item getIcon() {
@@ -242,7 +230,8 @@ public class Alter {
             this.enderChestInventory.setStack(i, this.player.getEnderChestInventory().getStack(i));
         }
 
-        this.position = this.player.getEntityPos();
+        this.position = new GlobalPos(player.getEntityWorld().getRegistryKey(), player.getBlockPos());
+
         this.rotation = this.player.getRotationClient();
 
         this.respawn = player.getRespawn();
@@ -257,8 +246,6 @@ public class Alter {
         this.saturationLevel = this.player.getHungerManager().getSaturationLevel();
         this.exhaustion = ((HungerManagerAccess) this.player.getHungerManager()).getExhaustion();
         this.foodTickTimer = ((HungerManagerAccess) this.player.getHungerManager()).getFoodTickTimer();
-
-        this.world = this.player.getEntityWorld();
     }
 
     public void setPlayerEntityDataFromAlter() {
@@ -270,9 +257,19 @@ public class Alter {
             this.player.getEnderChestInventory().setStack(i, this.getEnderChestInventory().getStack(i));
         }
 
-        Vec3d alterPos = this.getPosition();
+        RegistryKey<World> alterWorld = this.getPosition().dimension();
+        BlockPos alterPos = this.getPosition().pos();
         Vec2f alterRot = this.getRotation();
-        this.player.teleport(this.getWorld(), alterPos.x, alterPos.y, alterPos.z, Set.of(), alterRot.y, alterRot.x, false);
+
+        this.player.teleport(player.getEntityWorld().getServer().getWorld(alterWorld),
+                alterPos.getX(),
+                alterPos.getY(),
+                alterPos.getZ(),
+                Set.of(),
+                alterRot.y,
+                alterRot.x,
+                false
+        );
 
         this.player.setSpawnPoint(this.respawn, false);
 

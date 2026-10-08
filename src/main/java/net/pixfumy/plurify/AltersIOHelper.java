@@ -134,7 +134,7 @@ public class AltersIOHelper {
                 alter.getEnderChestInventory().setStack(i, enderChestInventoryListReadView.get(i));
             }
 
-            alter.setPosition(nbtReadView.read("Position", Vec3d.CODEC).get());
+            alter.setPosition(nbtReadView.read("Position", GlobalPos.CODEC).get());
             alter.setRotation(nbtReadView.read("Rotation", Vec2f.CODEC).get());
 
             alter.setRespawn(nbtReadView.read("Respawn", ServerPlayerEntity.Respawn.CODEC).get());
@@ -150,8 +150,6 @@ public class AltersIOHelper {
             alter.setFoodTickTimer(nbtReadView.read("FoodTickTimer", Codec.INT).get());
 
             alter.setKeepInventory(nbtReadView.read("KeepInventory", Codec.BOOL).get());
-
-            alter.setWorld(player.getEntityWorld().getServer().getWorld(nbtReadView.read("World", World.CODEC).get()));
 
         } catch (IOException | NoSuchElementException | NullPointerException e) {
             PlurifyMain.LOGGER.error("Error reading entity data file " + entityDataFile);
@@ -173,7 +171,7 @@ public class AltersIOHelper {
             enderChestInventoryListAppender.add(enderChestInventory.getStack(i));
         }
 
-        nbtWriteView.put("Position", Vec3d.CODEC, alter.getPosition());
+        nbtWriteView.put("Position", GlobalPos.CODEC, alter.getPosition());
         nbtWriteView.put("Rotation", Vec2f.CODEC, alter.getRotation());
 
         if (alter.getRespawn() != null) {
@@ -191,8 +189,6 @@ public class AltersIOHelper {
         nbtWriteView.put("FoodTickTimer", Codec.INT, alter.getTotalExperience());
 
         nbtWriteView.put("KeepInventory", Codec.BOOL, alter.hasKeepInventory());
-
-        nbtWriteView.put("World", World.CODEC, alter.getWorld().getRegistryKey());
 
         Path entityDataFile = getPlurifyWorldPlayerAlterFile(player, alter);
         try {
