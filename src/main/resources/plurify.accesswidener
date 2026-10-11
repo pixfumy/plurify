@@ -1,5 +1,2 @@
-accessWidener v1 named
-accessible class net/minecraft/storage/NbtWriteView
-accessible class net/minecraft/storage/NbtWriteView$NbtListAppender
-accessible class net/minecraft/storage/NbtReadView
-accessible class net/minecraft/storage/NbtReadView$NbtListReadView
+accessWidener v2 official
+accessible field net/minecraft/world/entity/Avatar DATA_PLAYER_MODE_CUSTOMISATION Lnet/minecraft/network/syncher/EntityDataAccessor;

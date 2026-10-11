@@ -2,13 +2,13 @@ package net.pixfumy.plurify.mixin;
 
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.storage.WriteView;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.pixfumy.plurify.AltersIOHelper;
 import net.pixfumy.plurify.IAltersOwner;
 import net.pixfumy.plurify.Alter;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.pixfumy.plurify.networking.PlayerSwitchAlterS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,8 +17,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.*;
 
-@Mixin(ServerPlayerEntity.class)
-public abstract class PlayerAltersMixin extends PlayerEntity implements IAltersOwner {
+@Mixin(ServerPlayer.class)
+public abstract class PlayerAltersMixin extends Player implements IAltersOwner {
 
     private HashMap<UUID, Alter> alters;
     private Alter currentAlter;
@@ -26,7 +26,7 @@ public abstract class PlayerAltersMixin extends PlayerEntity implements IAltersO
     private boolean isClientLoaded;
 
 
-    public PlayerAltersMixin(World world, GameProfile profile) {
+    public PlayerAltersMixin(Level world, GameProfile profile) {
         super(world, profile);
     }
 
@@ -60,7 +60,7 @@ public abstract class PlayerAltersMixin extends PlayerEntity implements IAltersO
         }
         this.alters.put(alter.getUuid(), alter);
 
-        ServerPlayerEntity thisPlayer = (ServerPlayerEntity) (Object) this;
+        ServerPlayer thisPlayer = (ServerPlayer) (Object) this;
         AltersIOHelper.writePlayerAltersToFile(thisPlayer);
     }
 
@@ -70,12 +70,12 @@ public abstract class PlayerAltersMixin extends PlayerEntity implements IAltersO
             return;
         }
         this.alters.remove(alter.getUuid());
-        AltersIOHelper.writePlayerAltersToFile((ServerPlayerEntity) (Object) this);
+        AltersIOHelper.writePlayerAltersToFile((ServerPlayer) (Object) this);
     }
 
     @Override
     public void plurify$switchToAlter(Alter alter) {
-        ServerPlayerEntity thisPlayer = (ServerPlayerEntity) (Object) this;
+        ServerPlayer thisPlayer = (ServerPlayer) (Object) this;
 
         // save current alter data
         plurify$getCurrentAlter().setAlterEntityDataFromPlayer();
@@ -100,18 +100,18 @@ public abstract class PlayerAltersMixin extends PlayerEntity implements IAltersO
         this.isClientLoaded = isClientLoaded;
     }
 
-    @Inject(method = "copyFrom", at = @At(value = "HEAD"))
-    private void copyEntityDataToNewPlayer(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
+    @Inject(method = "restoreFrom", at = @At(value = "HEAD"))
+    private void copyEntityDataToNewPlayer(ServerPlayer oldPlayer, boolean alive, CallbackInfo ci) {
         this.alters = ((IAltersOwner) oldPlayer).plurify$getAlters();
         this.currentAlter = ((IAltersOwner) oldPlayer).plurify$getCurrentAlter();
         this.isClientLoaded = ((IAltersOwner) oldPlayer).plurify$isClientLoaded();
 
-        alters.values().forEach(alter -> alter.setPlayer((ServerPlayerEntity) (Object) this));
+        alters.values().forEach(alter -> alter.setPlayer((ServerPlayer) (Object) this));
     }
 
-    @Inject(method = "writeCustomData", at = @At("HEAD"))
-    private void writePlayerEntityDataOnAutosave(WriteView view, CallbackInfo ci) {
-        ServerPlayerEntity thisPlayer = (ServerPlayerEntity) (Object) this;
+    @Inject(method = "addAdditionalSaveData", at = @At("HEAD"))
+    private void writePlayerEntityDataOnAutosave(ValueOutput view, CallbackInfo ci) {
+        ServerPlayer thisPlayer = (ServerPlayer) (Object) this;
         Alter alter = plurify$getCurrentAlter();
         if (alter != null) {
             alter.setAlterEntityDataFromPlayer();

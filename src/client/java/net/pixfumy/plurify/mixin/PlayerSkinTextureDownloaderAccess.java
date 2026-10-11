@@ -1,14 +1,14 @@
 package net.pixfumy.plurify.mixin;
 
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.PlayerSkinTextureDownloader;
+import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.client.renderer.texture.SkinTextureDownloader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin(PlayerSkinTextureDownloader.class)
+@Mixin(SkinTextureDownloader.class)
 public interface PlayerSkinTextureDownloaderAccess {
     @Invoker
-    static NativeImage invokeRemapTexture(NativeImage image, String uri) {
+    static NativeImage invokeProcessLegacySkin(NativeImage image, String uri) {
         throw new AssertionError();
     }
 }

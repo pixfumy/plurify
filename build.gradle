@@ -1,25 +1,19 @@
 plugins {
-	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 }
 
-version = project.mod_version
+version = version = "$mod_version+$minecraft_version"
 group = project.maven_group
 
 base {
 	archivesName = project.archives_base_name
 }
 
-repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
-}
-
 loom {
 	splitEnvironmentSourceSets()
+
+	accessWidenerPath = file("src/main/resources/${project.archives_base_name}.accesswidener")
 
 	mods {
 		"modid" {
@@ -27,28 +21,25 @@ loom {
 			sourceSet sourceSets.client
 		}
 	}
-
-	accessWidenerPath = file("src/main/resources/plurify.accesswidener")
 }
 
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation include("eu.pb4:sgui:1.12.0+1.21.11")
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation include("eu.pb4:sgui:2.2.1+26.3")
 
 	Set<String> fabricApiModules = [
 			'fabric-api-base',
 			'fabric-networking-api-v1',
 			'fabric-lifecycle-events-v1',
-			'fabric-key-binding-api-v1',
+			'fabric-key-mapping-api-v1',
 			'fabric-resource-loader-v1'
 	]
 
-    // Add each fabric API module as a dependency
+	// Add each fabric API module as a dependency
 	fabricApiModules.forEach {
-		modImplementation include(fabricApi.module(it, project.fabric_api_version))
+		implementation include(fabricApi.module(it, project.fabric_api_version))
 	}
 
 	implementation include("com.konghq:unirest-java:3.11.09:standalone")
@@ -63,7 +54,7 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = 25
 }
 
 java {
@@ -72,8 +63,8 @@ java {
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 }
 
 jar {

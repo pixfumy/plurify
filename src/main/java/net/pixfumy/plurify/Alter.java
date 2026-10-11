@@ -1,38 +1,35 @@
 package net.pixfumy.plurify;
 
-import net.minecraft.entity.EntityEquipment;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.EnderChestInventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.network.SpawnLocating;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.GlobalPos;
-import net.minecraft.util.math.Vec2f;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.TeleportTarget;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldProperties;
-import net.minecraft.world.rule.GameRules;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntityEquipment;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.PlayerEnderChestContainer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.phys.Vec2;
 import net.pixfumy.plurify.mixin.access.HungerManagerAccess;
 
 import java.util.*;
 
 public class Alter {
     private UUID uuid;
-    private Text name;
+    private Component name;
 
-    private ServerPlayerEntity player;
-    private PlayerInventory playerInventory;
-    private EnderChestInventory enderChestInventory;
+    private ServerPlayer player;
+    private Inventory playerInventory;
+    private PlayerEnderChestContainer enderChestInventory;
     private GlobalPos position;
-    private Vec2f rotation;
+    private Vec2 rotation;
 
-    private ServerPlayerEntity.Respawn respawn;
+    private ServerPlayer.RespawnConfig respawn;
 
     private float health = 20;
 
@@ -47,69 +44,69 @@ public class Alter {
 
     private boolean keepInventory;
 
-    private ServerWorld world;
+    private ServerLevel world;
 
     private Item icon;
 
-    public Alter(ServerPlayerEntity player, boolean copyEntityDataFromPlayer) {
+    public Alter(ServerPlayer player, boolean copyEntityDataFromPlayer) {
         this(null, player.getName().copy(), player, copyEntityDataFromPlayer);
     }
 
-    public Alter(UUID uuid, Text name, ServerPlayerEntity player, boolean copyEntityDataFromPlayer) {
+    public Alter(UUID uuid, Component name, ServerPlayer player, boolean copyEntityDataFromPlayer) {
         this.uuid = uuid == null ? UUID.randomUUID() : uuid;
         this.name = name;
         this.player = player;
-        this.playerInventory = new PlayerInventory(player, new EntityEquipment());
-        this.enderChestInventory = new EnderChestInventory();
+        this.playerInventory = new Inventory(player, new EntityEquipment());
+        this.enderChestInventory = new PlayerEnderChestContainer();
 
         if (copyEntityDataFromPlayer) {
             setAlterEntityDataFromPlayer();
-            this.keepInventory = player.getEntityWorld().getGameRules().getValue(GameRules.KEEP_INVENTORY);
+            this.keepInventory = player.level().getGameRules().get(GameRules.KEEP_INVENTORY);
         } else {
             this.position = new GlobalPos(
-                    player.getEntityWorld().getServer().getSpawnWorld().getRegistryKey(),
-                    BlockPos.ofFloored(TeleportTarget.noRespawnPointSet(player, TeleportTarget.NO_OP).position())
+                    player.level().getServer().findRespawnDimension().dimension(),
+                    BlockPos.containing(TeleportTransition.createDefault(player, TeleportTransition.DO_NOTHING).position())
             );
-            this.rotation = new Vec2f(0, 0);
+            this.rotation = new Vec2(0, 0);
         }
 
-        this.icon = Items.MAGENTA_DYE;
+        this.icon = Items.DYE.magenta();
     }
 
     public UUID getUuid() {
         return uuid;
     }
 
-    public Text getName() {
+    public Component getName() {
         return this.name;
     }
 
-    public void setName(Text name) {
+    public void setName(Component name) {
         this.name = name;
     }
 
-    public ServerPlayerEntity getPlayer() {
+    public ServerPlayer getPlayer() {
         return player;
     }
 
-    public void setPlayer(ServerPlayerEntity player) {
+    public void setPlayer(ServerPlayer player) {
         this.player = player;
     }
 
-    public PlayerInventory getPlayerInventory() {
+    public Inventory getPlayerInventory() {
         return this.playerInventory;
     }
 
-    public void setPlayerInventory(PlayerInventory playerInventory) {
+    public void setPlayerInventory(Inventory playerInventory) {
         this.playerInventory = playerInventory;
     }
 
 
-    public EnderChestInventory getEnderChestInventory() {
+    public PlayerEnderChestContainer getEnderChestInventory() {
         return enderChestInventory;
     }
 
-    public void setEnderChestInventory(EnderChestInventory enderChestInventory) {
+    public void setEnderChestInventory(PlayerEnderChestContainer enderChestInventory) {
         this.enderChestInventory = enderChestInventory;
     }
 
@@ -121,19 +118,19 @@ public class Alter {
         this.position = position;
     }
 
-    public Vec2f getRotation() {
+    public Vec2 getRotation() {
         return rotation;
     }
 
-    public void setRotation(Vec2f rotation) {
+    public void setRotation(Vec2 rotation) {
         this.rotation = rotation;
     }
 
-    public ServerPlayerEntity.Respawn getRespawn() {
+    public ServerPlayer.RespawnConfig getRespawn() {
         return respawn;
     }
 
-    public void setRespawn(ServerPlayerEntity.Respawn respawn) {
+    public void setRespawn(ServerPlayer.RespawnConfig respawn) {
         this.respawn = respawn;
     }
 
@@ -222,19 +219,19 @@ public class Alter {
     }
 
     public void setAlterEntityDataFromPlayer() {
-        for (int i = 0; i < this.player.getInventory().size(); i++) {
-            this.playerInventory.setStack(i, this.player.getInventory().getStack(i));
+        for (int i = 0; i < this.player.getInventory().getContainerSize(); i++) {
+            this.playerInventory.setItem(i, this.player.getInventory().getItem(i));
         }
 
-        for (int i = 0; i < this.player.getEnderChestInventory().size(); i++) {
-            this.enderChestInventory.setStack(i, this.player.getEnderChestInventory().getStack(i));
+        for (int i = 0; i < this.player.getEnderChestInventory().getContainerSize(); i++) {
+            this.enderChestInventory.setItem(i, this.player.getEnderChestInventory().getItem(i));
         }
 
-        this.position = new GlobalPos(player.getEntityWorld().getRegistryKey(), player.getBlockPos());
+        this.position = new GlobalPos(player.level().dimension(), player.blockPosition());
 
-        this.rotation = this.player.getRotationClient();
+        this.rotation = this.player.getRotationVector();
 
-        this.respawn = player.getRespawn();
+        this.respawn = player.getRespawnConfig();
 
         this.health = this.player.getHealth();
 
@@ -242,26 +239,26 @@ public class Alter {
         this.experienceLevel = this.player.experienceLevel;
         this.totalExperience = this.player.totalExperience;
 
-        this.foodLevel = this.player.getHungerManager().getFoodLevel();
-        this.saturationLevel = this.player.getHungerManager().getSaturationLevel();
-        this.exhaustion = ((HungerManagerAccess) this.player.getHungerManager()).getExhaustion();
-        this.foodTickTimer = ((HungerManagerAccess) this.player.getHungerManager()).getFoodTickTimer();
+        this.foodLevel = this.player.getFoodData().getFoodLevel();
+        this.saturationLevel = this.player.getFoodData().getSaturationLevel();
+        this.exhaustion = ((HungerManagerAccess) this.player.getFoodData()).getExhaustionLevel();
+        this.foodTickTimer = ((HungerManagerAccess) this.player.getFoodData()).getTickTimer();
     }
 
     public void setPlayerEntityDataFromAlter() {
-        for (int i = 0; i < this.getPlayerInventory().size(); ++i) {
-            this.player.getInventory().setStack(i, this.getPlayerInventory().getStack(i));
+        for (int i = 0; i < this.getPlayerInventory().getContainerSize(); ++i) {
+            this.player.getInventory().setItem(i, this.getPlayerInventory().getItem(i));
         }
 
-        for (int i = 0; i < this.getEnderChestInventory().size(); ++i) {
-            this.player.getEnderChestInventory().setStack(i, this.getEnderChestInventory().getStack(i));
+        for (int i = 0; i < this.getEnderChestInventory().getContainerSize(); ++i) {
+            this.player.getEnderChestInventory().setItem(i, this.getEnderChestInventory().getItem(i));
         }
 
-        RegistryKey<World> alterWorld = this.getPosition().dimension();
+        ResourceKey<Level> alterWorld = this.getPosition().dimension();
         BlockPos alterPos = this.getPosition().pos();
-        Vec2f alterRot = this.getRotation();
+        Vec2 alterRot = this.getRotation();
 
-        this.player.teleport(player.getEntityWorld().getServer().getWorld(alterWorld),
+        this.player.teleportTo(player.level().getServer().getLevel(alterWorld),
                 alterPos.getX(),
                 alterPos.getY(),
                 alterPos.getZ(),
@@ -271,7 +268,7 @@ public class Alter {
                 false
         );
 
-        this.player.setSpawnPoint(this.respawn, false);
+        this.player.setRespawnPosition(this.respawn, false);
 
         this.player.setHealth(this.getHealth());
 
@@ -279,9 +276,9 @@ public class Alter {
         this.player.experienceLevel = this.getExperienceLevel();
         this.player.totalExperience = this.getTotalExperience();
 
-        this.player.getHungerManager().setFoodLevel(this.getFoodLevel());
-        this.player.getHungerManager().setSaturationLevel(this.getSaturationLevel());
-        ((HungerManagerAccess) this.player.getHungerManager()).setExhaustion(this.getExhaustion());
-        ((HungerManagerAccess) this.player.getHungerManager()).setFoodTickTimer(this.getFoodTickTimer());
+        this.player.getFoodData().setFoodLevel(this.getFoodLevel());
+        this.player.getFoodData().setSaturation(this.getSaturationLevel());
+        ((HungerManagerAccess) this.player.getFoodData()).setExhaustionLevel(this.getExhaustion());
+        ((HungerManagerAccess) this.player.getFoodData()).setTickTimer(this.getFoodTickTimer());
     }
 }
