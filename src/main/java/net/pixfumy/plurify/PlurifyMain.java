@@ -5,8 +5,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 import net.pixfumy.plurify.gui.AlterDetailsGui;
 import net.pixfumy.plurify.gui.MainAltersGui;
 import net.pixfumy.plurify.networking.CloseAlterSkinScreenC2SPayload;
@@ -27,13 +26,13 @@ public class PlurifyMain implements ModInitializer {
 	public void onInitialize() {
 		LOGGER.info("Plurify successfully loaded.");
 
-		PayloadTypeRegistry.playS2C().register(OpenAlterSkinScreenS2CPayload.ID, OpenAlterSkinScreenS2CPayload.CODEC);
-		PayloadTypeRegistry.playS2C().register(PlayerSwitchAlterS2CPacket.ID, PlayerSwitchAlterS2CPacket.CODEC);
-		PayloadTypeRegistry.playC2S().register(PlurifyHandshakeC2SPayload.ID, PlurifyHandshakeC2SPayload.CODEC);
-		PayloadTypeRegistry.playC2S().register(CloseAlterSkinScreenC2SPayload.ID, CloseAlterSkinScreenC2SPayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(OpenAlterSkinScreenS2CPayload.ID, OpenAlterSkinScreenS2CPayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(PlayerSwitchAlterS2CPacket.ID, PlayerSwitchAlterS2CPacket.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(PlurifyHandshakeC2SPayload.ID, PlurifyHandshakeC2SPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(CloseAlterSkinScreenC2SPayload.ID, CloseAlterSkinScreenC2SPayload.CODEC);
 
 		ServerPlayConnectionEvents.JOIN.register((serverPlayNetworkHandler, packetSender, minecraftServer) -> {
-			ServerPlayerEntity player = serverPlayNetworkHandler.player;
+			ServerPlayer player = serverPlayNetworkHandler.player;
 			AltersIOHelper.loadPlayerAltersFromFile(player);
 			Alter currentAlter = ((IAltersOwner) player).plurify$getCurrentAlter();
 			ServerPlayNetworking.send(serverPlayNetworkHandler.player,
@@ -45,7 +44,7 @@ public class PlurifyMain implements ModInitializer {
 		}));
 
 		ServerPlayNetworking.registerGlobalReceiver(CloseAlterSkinScreenC2SPayload.ID, ((closeAlterSkinScreenC2SPayload, context) -> {
-			ServerPlayerEntity player = context.player();
+			ServerPlayer player = context.player();
 			IAltersOwner playerAsAltersOwner = (IAltersOwner) player;
 
 			Alter selectedAlter = playerAsAltersOwner.plurify$getAlters().getOrDefault(

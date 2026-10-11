@@ -2,16 +2,17 @@ package net.pixfumy.plurify.gui;
 
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.GuiElement;
+import eu.pb4.sgui.api.elements.SimpleGuiElement;
 import eu.pb4.sgui.api.gui.SimpleGui;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.LoreComponent;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemLore;
 import net.pixfumy.plurify.Alter;
 import net.pixfumy.plurify.AltersIOHelper;
 import net.pixfumy.plurify.IAltersOwner;
@@ -22,20 +23,20 @@ public class MainAltersGui extends SimpleGui {
 
     private static final int EGG_INDEX = 49;
 
-    public MainAltersGui(ServerPlayerEntity player) {
-        super(ScreenHandlerType.GENERIC_9X6, player, false);
-        this.setTitle(Text.translatable("plurify.gui.main_alters_gui.title"));
+    public MainAltersGui(ServerPlayer player) {
+        super(MenuType.GENERIC_9x6, player, false);
+        this.setTitle(Component.translatable("plurify.gui.main_alters_gui.title"));
         if (((IAltersOwner)player).plurify$getAlters().isEmpty()) {
             AltersIOHelper.loadPlayerAltersFromFile(player);
         }
 
         ((IAltersOwner) player).plurify$getCurrentAlter().setAlterEntityDataFromPlayer();
 
-        ItemStack addAlterButtonItemStack = Items.EGG.getDefaultStack();
-        addAlterButtonItemStack.set(DataComponentTypes.ITEM_NAME, Text.translatable("plurify.gui.main_alters_gui.add_alter")
-                .setStyle(Style.EMPTY.withColor(Formatting.LIGHT_PURPLE)));
+        ItemStack addAlterButtonItemStack = Items.EGG.getDefaultInstance();
+        addAlterButtonItemStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.main_alters_gui.add_alter")
+                .setStyle(Style.EMPTY.withColor(ChatFormatting.LIGHT_PURPLE)));
 
-        this.setSlot(EGG_INDEX, new GuiElement(addAlterButtonItemStack, (i, clickType, slotActionType, slotGuiInterface) -> {
+        this.setSlot(EGG_INDEX, new SimpleGuiElement(addAlterButtonItemStack, (i, clickType, slotActionType, slotGuiInterface) -> {
             if (clickType == ClickType.MOUSE_LEFT) {
                 Alter alter = new Alter(player, false);
                 new NameAlterGui(player, alter, this).open();
@@ -56,22 +57,22 @@ public class MainAltersGui extends SimpleGui {
         Collection<Alter> alterList = ((IAltersOwner) player).plurify$getAlters().values();
         int headIndex = 0;
         for (Alter alter : alterList) {
-            ItemStack alterIcon = alter.getIcon().getDefaultStack();
-            alterIcon.set(DataComponentTypes.ITEM_NAME, alter.getName());
+            ItemStack alterIcon = alter.getIcon().getDefaultInstance();
+            alterIcon.set(DataComponents.ITEM_NAME, alter.getName());
 
-            Style style = Style.EMPTY.withColor(Formatting.GRAY);
-            LoreComponent loreComponent = LoreComponent.DEFAULT
-                    .with(Text.translatable("plurify.gui.main_alters_gui.switch_to_alter").setStyle(style))
-                    .with(Text.translatable("plurify.gui.main_alters_gui.go_to_alter_details").setStyle(style));
+            Style style = Style.EMPTY.withColor(ChatFormatting.GRAY);
+            ItemLore loreComponent = ItemLore.EMPTY
+                    .withLineAdded(Component.translatable("plurify.gui.main_alters_gui.switch_to_alter").setStyle(style))
+                    .withLineAdded(Component.translatable("plurify.gui.main_alters_gui.go_to_alter_details").setStyle(style));
 
             if (((IAltersOwner)player).plurify$getCurrentAlter() == alter) {
-                alterIcon.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
-                loreComponent = loreComponent.with(Text.translatable("plurify.gui.main_alters_gui.currently_selected"));
+                alterIcon.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
+                loreComponent = loreComponent.withLineAdded(Component.translatable("plurify.gui.main_alters_gui.currently_selected"));
             }
 
-            alterIcon.set(DataComponentTypes.LORE, loreComponent);
+            alterIcon.set(DataComponents.LORE, loreComponent);
 
-            this.setSlot(headIndex, new GuiElement(alterIcon, (i, clickType, slotActionType, slotGuiInterface) -> {
+            this.setSlot(headIndex, new SimpleGuiElement(alterIcon, (i, clickType, slotActionType, slotGuiInterface) -> {
                 if (clickType == ClickType.MOUSE_LEFT) {
                     ((IAltersOwner) player).plurify$switchToAlter(alter);
                     showAlters();

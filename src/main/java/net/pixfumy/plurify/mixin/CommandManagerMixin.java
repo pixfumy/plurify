@@ -1,8 +1,8 @@
 package net.pixfumy.plurify.mixin;
 
 import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.pixfumy.plurify.AltersCommand;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,9 +11,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(CommandManager.class)
+@Mixin(Commands.class)
 public class CommandManagerMixin {
-	@Shadow @Final private CommandDispatcher<ServerCommandSource> dispatcher;
+	@Shadow @Final private CommandDispatcher<CommandSourceStack> dispatcher;
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void init(CallbackInfo info) {

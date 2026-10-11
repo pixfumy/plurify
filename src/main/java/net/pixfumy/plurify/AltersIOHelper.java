@@ -3,26 +3,23 @@ package net.pixfumy.plurify;
 import com.google.gson.*;
 import com.mojang.serialization.Codec;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.EnderChestInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.storage.NbtReadView;
-import net.minecraft.storage.NbtWriteView;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.text.Text;
-import net.minecraft.util.ErrorReporter;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.WorldSavePath;
-import net.minecraft.util.math.GlobalPos;
-import net.minecraft.util.math.Vec2f;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.PlayerEnderChestContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec2;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
@@ -30,7 +27,7 @@ import java.util.*;
 public class AltersIOHelper {
     private static final String MOD_DIR = PlurifyMain.MOD_ID;
 
-    public static void loadPlayerAltersFromFile(ServerPlayerEntity player) {
+    public static void loadPlayerAltersFromFile(ServerPlayer player) {
         File playerFile = getPlayerAltersConfigFile(player).toFile();
         HashMap<UUID, Alter> alters;
 
@@ -51,12 +48,12 @@ public class AltersIOHelper {
 
                     String alterNameAsString = alterJson.get("name").getAsString();
 
-                    Text alterName = Text.literal(alterNameAsString);
+                    Component alterName = Component.literal(alterNameAsString);
 
                     Alter alter = new Alter(alterUuid, alterName, player, false);
 
                     String alterIconIdentifier = alterJson.get("icon").getAsString();
-                    alter.setIcon(Registries.ITEM.get(Identifier.of(alterIconIdentifier)));
+                    alter.setIcon(BuiltInRegistries.ITEM.getValue(Identifier.parse(alterIconIdentifier)));
 
                     alters.put(alterUuid, alter);
                     readPlayerAlterEntityDataFromFile(player, alter);
@@ -79,13 +76,13 @@ public class AltersIOHelper {
         }
     }
 
-    public static void writePlayerAltersToFile(ServerPlayerEntity player) {
+    public static void writePlayerAltersToFile(ServerPlayer player) {
         Path playerDir = getPlurifyWorldPlayerDir(player);
         File playerFile = getPlayerAltersConfigFile(player).toFile();
 
         JsonObject playerJson = new JsonObject();
-        playerJson.addProperty("uuid", player.getUuidAsString());
-        playerJson.addProperty("inGameName", player.getNameForScoreboard());
+        playerJson.addProperty("uuid", player.getStringUUID());
+        playerJson.addProperty("inGameName", player.getScoreboardName());
         playerJson.addProperty("currentAlterUuid", ((IAltersOwner)player).plurify$getCurrentAlter().getUuid().toString());
 
         HashMap<UUID, Alter> alters = ((IAltersOwner)player).plurify$getAlters();
@@ -95,7 +92,7 @@ public class AltersIOHelper {
             JsonObject alterJson = new JsonObject();
             alterJson.addProperty("uuid", alter.getUuid().toString());
             alterJson.addProperty("name", alter.getName().getString());
-            alterJson.addProperty("icon", Registries.ITEM.getId(alter.getIcon()).toString());
+            alterJson.addProperty("icon", BuiltInRegistries.ITEM.getKey(alter.getIcon()).toString());
             alterJsons.add(alterJson);
         }
 
@@ -114,30 +111,30 @@ public class AltersIOHelper {
         }
     }
 
-    public static void readPlayerAlterEntityDataFromFile(ServerPlayerEntity player, Alter alter) {
+    public static void readPlayerAlterEntityDataFromFile(ServerPlayer player, Alter alter) {
         Path entityDataFile = getPlurifyWorldPlayerAlterFile(player, alter);
         if (!entityDataFile.toFile().exists()) {
             return;
         }
 
         try {
-            NbtCompound entityDataNbt = NbtIo.read(entityDataFile);
+            CompoundTag entityDataNbt = NbtIo.read(entityDataFile);
 
-            ReadView nbtReadView = NbtReadView.create(new ErrorReporter.Logging(PlurifyMain.LOGGER), player.getRegistryManager(), entityDataNbt);
-            List<ItemStack> mainInventoryListReadView = Objects.requireNonNull(nbtReadView.getTypedListView("Inventory", ItemStack.OPTIONAL_CODEC).stream().toList());
+            ValueInput nbtReadView = TagValueInput.create(new ProblemReporter.ScopedCollector(PlurifyMain.LOGGER), player.registryAccess(), entityDataNbt);
+            List<ItemStack> mainInventoryListReadView = Objects.requireNonNull(nbtReadView.listOrEmpty("Inventory", ItemStack.OPTIONAL_CODEC).stream().toList());
             for (int i = 0; i < mainInventoryListReadView.size(); i++) {
-                alter.getPlayerInventory().setStack(i, mainInventoryListReadView.get(i));
+                alter.getPlayerInventory().setItem(i, mainInventoryListReadView.get(i));
             }
 
-            List<ItemStack> enderChestInventoryListReadView = Objects.requireNonNull(nbtReadView.getTypedListView("EnderItems", ItemStack.OPTIONAL_CODEC).stream().toList());
+            List<ItemStack> enderChestInventoryListReadView = Objects.requireNonNull(nbtReadView.listOrEmpty("EnderItems", ItemStack.OPTIONAL_CODEC).stream().toList());
             for (int i = 0; i < enderChestInventoryListReadView.size(); i++) {
-                alter.getEnderChestInventory().setStack(i, enderChestInventoryListReadView.get(i));
+                alter.getEnderChestInventory().setItem(i, enderChestInventoryListReadView.get(i));
             }
 
             alter.setPosition(nbtReadView.read("Position", GlobalPos.CODEC).get());
-            alter.setRotation(nbtReadView.read("Rotation", Vec2f.CODEC).get());
+            alter.setRotation(nbtReadView.read("Rotation", Vec2.CODEC).get());
 
-            alter.setRespawn(nbtReadView.read("Respawn", ServerPlayerEntity.Respawn.CODEC).get());
+            alter.setRespawn(nbtReadView.read("Respawn", ServerPlayer.RespawnConfig.CODEC).get());
 
             alter.setHealth(nbtReadView.read("Health", Codec.FLOAT).get());
 
@@ -156,43 +153,43 @@ public class AltersIOHelper {
         }
     }
 
-    public static void writePlayerAlterEntityDataToFile(ServerPlayerEntity player, Alter alter) {
-        PlayerInventory playerInventory = alter.getPlayerInventory();
+    public static void writePlayerAlterEntityDataToFile(ServerPlayer player, Alter alter) {
+        Inventory playerInventory = alter.getPlayerInventory();
 
-        NbtWriteView nbtWriteView = NbtWriteView.create(new ErrorReporter.Logging(PlurifyMain.LOGGER), player.getRegistryManager());
-        WriteView.ListAppender<ItemStack> mainInventoryListAppender = nbtWriteView.getListAppender("Inventory", ItemStack.OPTIONAL_CODEC);
-        for (int i = 0; i < playerInventory.size(); i++) {
-            mainInventoryListAppender.add(playerInventory.getStack(i));
+        TagValueOutput nbtWriteView = TagValueOutput.createWithContext(new ProblemReporter.ScopedCollector(PlurifyMain.LOGGER), player.registryAccess());
+        ValueOutput.TypedOutputList<ItemStack> mainInventoryListAppender = nbtWriteView.list("Inventory", ItemStack.OPTIONAL_CODEC);
+        for (int i = 0; i < playerInventory.getContainerSize(); i++) {
+            mainInventoryListAppender.add(playerInventory.getItem(i));
         }
 
-        EnderChestInventory enderChestInventory = alter.getEnderChestInventory();
-        WriteView.ListAppender<ItemStack> enderChestInventoryListAppender = nbtWriteView.getListAppender("EnderItems", ItemStack.OPTIONAL_CODEC);
-        for (int i = 0; i < alter.getEnderChestInventory().size(); i++) {
-            enderChestInventoryListAppender.add(enderChestInventory.getStack(i));
+        PlayerEnderChestContainer enderChestInventory = alter.getEnderChestInventory();
+        ValueOutput.TypedOutputList<ItemStack> enderChestInventoryListAppender = nbtWriteView.list("EnderItems", ItemStack.OPTIONAL_CODEC);
+        for (int i = 0; i < alter.getEnderChestInventory().getContainerSize(); i++) {
+            enderChestInventoryListAppender.add(enderChestInventory.getItem(i));
         }
 
-        nbtWriteView.put("Position", GlobalPos.CODEC, alter.getPosition());
-        nbtWriteView.put("Rotation", Vec2f.CODEC, alter.getRotation());
+        nbtWriteView.store("Position", GlobalPos.CODEC, alter.getPosition());
+        nbtWriteView.store("Rotation", Vec2.CODEC, alter.getRotation());
 
         if (alter.getRespawn() != null) {
-            nbtWriteView.put("Respawn", ServerPlayerEntity.Respawn.CODEC, alter.getRespawn());
+            nbtWriteView.store("Respawn", ServerPlayer.RespawnConfig.CODEC, alter.getRespawn());
         }
 
-        nbtWriteView.put("Health", Codec.FLOAT, alter.getHealth());
+        nbtWriteView.store("Health", Codec.FLOAT, alter.getHealth());
 
-        nbtWriteView.put("ExperienceLevel", Codec.INT, alter.getExperienceLevel());
-        nbtWriteView.put("TotalExperience", Codec.INT, alter.getTotalExperience());
+        nbtWriteView.store("ExperienceLevel", Codec.INT, alter.getExperienceLevel());
+        nbtWriteView.store("TotalExperience", Codec.INT, alter.getTotalExperience());
 
-        nbtWriteView.put("FoodLevel", Codec.INT, alter.getFoodLevel());
-        nbtWriteView.put("SaturationLevel", Codec.FLOAT, alter.getSaturationLevel());
-        nbtWriteView.put("Exhaustion", Codec.FLOAT, alter.getExhaustion());
-        nbtWriteView.put("FoodTickTimer", Codec.INT, alter.getTotalExperience());
+        nbtWriteView.store("FoodLevel", Codec.INT, alter.getFoodLevel());
+        nbtWriteView.store("SaturationLevel", Codec.FLOAT, alter.getSaturationLevel());
+        nbtWriteView.store("Exhaustion", Codec.FLOAT, alter.getExhaustion());
+        nbtWriteView.store("FoodTickTimer", Codec.INT, alter.getTotalExperience());
 
-        nbtWriteView.put("KeepInventory", Codec.BOOL, alter.hasKeepInventory());
+        nbtWriteView.store("KeepInventory", Codec.BOOL, alter.hasKeepInventory());
 
         Path entityDataFile = getPlurifyWorldPlayerAlterFile(player, alter);
         try {
-            NbtIo.write(nbtWriteView.getNbt(), entityDataFile);
+            NbtIo.write(nbtWriteView.buildResult(), entityDataFile);
         } catch (IOException e) {
             PlurifyMain.LOGGER.error("Error writing entity data file " + entityDataFile);
         }
@@ -210,17 +207,17 @@ public class AltersIOHelper {
      * Config directory for metadata for a specific player. Metadata consists of alter names, icons,
      * and (client only) skin files.
      */
-    public static Path getPlayerConfigDir(PlayerEntity player) {
+    public static Path getPlayerConfigDir(Player player) {
         Path plurifyConfigDir = getPlurifyConfigDir();
         plurifyConfigDir.toFile().mkdir();
-        return plurifyConfigDir.resolve(player.getUuidAsString());
+        return plurifyConfigDir.resolve(player.getStringUUID());
     }
 
     /**
      * Config file containing the instance-wide metadata for this player and corresponding alters. Metadata
      * consists of alter uuids, names, icons, and (client only) skin files.
      */
-    private static Path getPlayerAltersConfigFile(PlayerEntity player) {
+    private static Path getPlayerAltersConfigFile(Player player) {
         Path playerConfigDir = getPlayerConfigDir(player);
         playerConfigDir.toFile().mkdir();
         return playerConfigDir.resolve("alter_data.json");
@@ -229,23 +226,23 @@ public class AltersIOHelper {
     /**
      * World-specific directory for all plurify data
      */
-    public static Path getPlurifyWorldDir(PlayerEntity player) {
-        return player.getEntityWorld().getServer().getSavePath(WorldSavePath.ROOT).resolve(MOD_DIR);
+    public static Path getPlurifyWorldDir(Player player) {
+        return player.level().getServer().getWorldPath(LevelResource.ROOT).resolve(MOD_DIR);
     }
 
     /**
      * World-specific directory for specific player
      */
-    private static Path getPlurifyWorldPlayerDir(PlayerEntity player) {
+    private static Path getPlurifyWorldPlayerDir(Player player) {
         Path plurifyWorldDir = getPlurifyWorldDir(player);
         plurifyWorldDir.toFile().mkdir();
-        return plurifyWorldDir.resolve(player.getUuidAsString());
+        return plurifyWorldDir.resolve(player.getStringUUID());
     }
 
     /**
      * World-specific file containing NBT data for a single alter for a single player
      */
-    private static Path getPlurifyWorldPlayerAlterFile(PlayerEntity player, Alter alter) {
+    private static Path getPlurifyWorldPlayerAlterFile(Player player, Alter alter) {
         Path plurifyWorldPlayerDir = getPlurifyWorldPlayerDir(player);
         plurifyWorldPlayerDir.toFile().mkdir();
         return plurifyWorldPlayerDir.resolve(alter.getUuid() + "-" + "entitydata.nbt");

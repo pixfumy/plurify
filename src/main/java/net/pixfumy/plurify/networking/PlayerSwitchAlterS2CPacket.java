@@ -1,25 +1,25 @@
 package net.pixfumy.plurify.networking;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 import net.pixfumy.plurify.PlurifyMain;
 
-public record PlayerSwitchAlterS2CPacket(String alterId, String alterName) implements CustomPayload {
-    public static final Id<PlayerSwitchAlterS2CPacket> ID = new Id<>(Identifier.of(PlurifyMain.MOD_ID + ":player_current_alter"));
+public record PlayerSwitchAlterS2CPacket(String alterId, String alterName) implements CustomPacketPayload {
+    public static final Type<PlayerSwitchAlterS2CPacket> ID = new Type<>(Identifier.parse(PlurifyMain.MOD_ID + ":player_current_alter"));
 
-    public static final PacketCodec<ByteBuf, PlayerSwitchAlterS2CPacket> CODEC = PacketCodec.tuple(
-            PacketCodecs.STRING,
+    public static final StreamCodec<ByteBuf, PlayerSwitchAlterS2CPacket> CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8,
             PlayerSwitchAlterS2CPacket::alterId,
-            PacketCodecs.STRING,
+            ByteBufCodecs.STRING_UTF8,
             PlayerSwitchAlterS2CPacket::alterName,
             PlayerSwitchAlterS2CPacket::new
     );
 
     @Override
-    public CustomPayload.Id<? extends CustomPayload> getId() {
+    public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

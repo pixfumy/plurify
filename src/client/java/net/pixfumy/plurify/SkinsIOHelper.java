@@ -1,18 +1,16 @@
 package net.pixfumy.plurify;
 
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.entity.player.PlayerSkinType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Colors;
 import org.apache.commons.io.FileUtils;
-
+import com.mojang.blaze3d.platform.NativeImage;
 import java.io.*;
 import java.nio.file.Path;
-import java.util.UUID;
+
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.util.CommonColors;
+import net.minecraft.world.entity.player.PlayerModelType;
 
 public class SkinsIOHelper {
-    public static NativeImage readPlayerAlterSkinFromFile(AbstractClientPlayerEntity player, String alterId) {
+    public static NativeImage readPlayerAlterSkinFromFile(AbstractClientPlayer player, String alterId) {
         File skinFile = getPlayerAlterSkinFile(player, alterId.toString());
         try {
             return NativeImage.read(new FileInputStream(skinFile));
@@ -23,7 +21,7 @@ public class SkinsIOHelper {
         return null;
     }
 
-    public static void writePlayerAlterSkinToFile(AbstractClientPlayerEntity player, String alterId, File skinFile) {
+    public static void writePlayerAlterSkinToFile(AbstractClientPlayer player, String alterId, File skinFile) {
         File source = skinFile;
         File dest = getPlayerAlterSkinFile(player, alterId.toString());
         try {
@@ -33,7 +31,7 @@ public class SkinsIOHelper {
         }
     }
 
-    public static File getPlayerAlterSkinFile(AbstractClientPlayerEntity player, String alterId) {
+    public static File getPlayerAlterSkinFile(AbstractClientPlayer player, String alterId) {
         Path playerConfigDir = AltersIOHelper.getPlayerConfigDir(player);
         playerConfigDir.toFile().mkdir();
         return playerConfigDir.resolve(alterId + ".png").toFile();
@@ -42,12 +40,12 @@ public class SkinsIOHelper {
     /**
      * Sample the player's arm (a la blood test) to determine if it's wide or slim
      */
-    public static PlayerSkinType determinePlayerSkinType(NativeImage skinAsNativeImage) {
-        int armSample = skinAsNativeImage.getColorArgb(55, 20);
-        if (armSample == Colors.BLACK) {
-            return PlayerSkinType.SLIM;
+    public static PlayerModelType determinePlayerSkinType(NativeImage skinAsNativeImage) {
+        int armSample = skinAsNativeImage.getPixel(55, 20);
+        if (armSample == CommonColors.BLACK) {
+            return PlayerModelType.SLIM;
         } else {
-            return PlayerSkinType.WIDE;
+            return PlayerModelType.WIDE;
         }
     }
 }

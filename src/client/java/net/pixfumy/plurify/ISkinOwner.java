@@ -1,10 +1,10 @@
 package net.pixfumy.plurify;
 
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.entity.player.PlayerSkinType;
+import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.world.entity.player.PlayerModelType;
 
 public interface ISkinOwner {
-    PlayerSkinType plurify$getPlayerSkinType();
+    PlayerModelType plurify$getPlayerSkinType();
 
     NativeImage plurify$getSkinTextureAsNativeImage();
 
