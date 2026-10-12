@@ -1,0 +1,769 @@
+{
+    "model": {
+      "type": "minecraft:select",
+      "property": "minecraft:custom_model_data",
+      "index": 0,
+      "cases": [
+        {
+          "when": "plurify:menu/add_alter",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/add_alter"
+          }
+        },
+        {
+          "when": "plurify:menu/arrow_left",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/arrow_left"
+          }
+        },
+        {
+          "when": "plurify:menu/arrow_right",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/arrow_right"
+          }
+        },
+        {
+          "when": "plurify:menu/back",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/back"
+          }
+        },
+        {
+          "when": "plurify:menu/change_skin",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/change_skin"
+          }
+        },
+        {
+          "when": "plurify:menu/choose_icon",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/choose_icon"
+          }
+        },
+        {
+          "when": "plurify:menu/delete",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/delete"
+          }
+        },
+        {
+          "when": "plurify:menu/keep_inv_off",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/keep_inv_off"
+          }
+        },
+        {
+          "when": "plurify:menu/keep_inv_on",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/keep_inv_on"
+          }
+        },
+        {
+          "when": "plurify:menu/location",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/location"
+          }
+        },
+        {
+          "when": "plurify:menu/rename",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/rename"
+          }
+        },
+        {
+          "when": "plurify:menu/switch",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/switch"
+          }
+        },
+        {
+          "when": "plurify:avatar/axe/copper",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/axe/copper"
+          }
+        },
+        {
+          "when": "plurify:avatar/axe/diamond",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/axe/diamond"
+          }
+        },
+        {
+          "when": "plurify:avatar/axe/golden",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/axe/golden"
+          }
+        },
+        {
+          "when": "plurify:avatar/axe/iron",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/axe/iron"
+          }
+        },
+        {
+          "when": "plurify:avatar/axe/netherite",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/axe/netherite"
+          }
+        },
+        {
+          "when": "plurify:avatar/axe/stone",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/axe/stone"
+          }
+        },
+        {
+          "when": "plurify:avatar/axe/wooden",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/axe/wooden"
+          }
+        },
+        {
+          "when": "plurify:avatar/pickaxe/copper",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/pickaxe/copper"
+          }
+        },
+        {
+          "when": "plurify:avatar/pickaxe/diamond",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/pickaxe/diamond"
+          }
+        },
+        {
+          "when": "plurify:avatar/pickaxe/golden",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/pickaxe/golden"
+          }
+        },
+        {
+          "when": "plurify:avatar/pickaxe/iron",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/pickaxe/iron"
+          }
+        },
+        {
+          "when": "plurify:avatar/pickaxe/netherite",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/pickaxe/netherite"
+          }
+        },
+        {
+          "when": "plurify:avatar/pickaxe/stone",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/pickaxe/stone"
+          }
+        },
+        {
+          "when": "plurify:avatar/pickaxe/wooden",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/pickaxe/wooden"
+          }
+        },
+        {
+          "when": "plurify:avatar/sword/copper",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/sword/copper"
+          }
+        },
+        {
+          "when": "plurify:avatar/sword/diamond",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/sword/diamond"
+          }
+        },
+        {
+          "when": "plurify:avatar/sword/golden",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/sword/golden"
+          }
+        },
+        {
+          "when": "plurify:avatar/sword/iron",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/sword/iron"
+          }
+        },
+        {
+          "when": "plurify:avatar/sword/netherite",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/sword/netherite"
+          }
+        },
+        {
+          "when": "plurify:avatar/sword/stone",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/sword/stone"
+          }
+        },
+        {
+          "when": "plurify:avatar/sword/wooden",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/sword/wooden"
+          }
+        },
+        {
+          "when": "plurify:avatar/shovel/copper",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/shovel/copper"
+          }
+        },
+        {
+          "when": "plurify:avatar/shovel/diamond",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/shovel/diamond"
+          }
+        },
+        {
+          "when": "plurify:avatar/shovel/golden",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/shovel/golden"
+          }
+        },
+        {
+          "when": "plurify:avatar/shovel/iron",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/shovel/iron"
+          }
+        },
+        {
+          "when": "plurify:avatar/shovel/netherite",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/shovel/netherite"
+          }
+        },
+        {
+          "when": "plurify:avatar/shovel/stone",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/shovel/stone"
+          }
+        },
+        {
+          "when": "plurify:avatar/shovel/wooden",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/shovel/wooden"
+          }
+        },
+        {
+          "when": "plurify:avatar/candy/black",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/candy/black"
+          }
+        },
+        {
+          "when": "plurify:avatar/candy/blue",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/candy/blue"
+          }
+        },
+        {
+          "when": "plurify:avatar/candy/brown",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/candy/brown"
+          }
+        },
+        {
+          "when": "plurify:avatar/candy/cyan",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/candy/cyan"
+          }
+        },
+        {
+          "when": "plurify:avatar/candy/gray",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/candy/gray"
+          }
+        },
+        {
+          "when": "plurify:avatar/candy/green",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/candy/green"
+          }
+        },
+        {
+          "when": "plurify:avatar/candy/light_blue",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/candy/light_blue"
+          }
+        },
+        {
+          "when": "plurify:avatar/candy/light_gray",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/candy/light_gray"
+          }
+        },
+        {
+          "when": "plurify:avatar/candy/lime",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/candy/lime"
+          }
+        },
+        {
+          "when": "plurify:avatar/candy/magenta",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/candy/magenta"
+          }
+        },
+        {
+          "when": "plurify:avatar/candy/orange",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/candy/orange"
+          }
+        },
+        {
+          "when": "plurify:avatar/candy/pink",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/candy/pink"
+          }
+        },
+        {
+          "when": "plurify:avatar/candy/purple",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/candy/purple"
+          }
+        },
+        {
+          "when": "plurify:avatar/candy/red",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/candy/red"
+          }
+        },
+        {
+          "when": "plurify:avatar/candy/white",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/candy/white"
+          }
+        },
+        {
+          "when": "plurify:avatar/candy/yellow",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/candy/yellow"
+          }
+        },
+        {
+          "when": "plurify:avatar/heart/black",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/heart/black"
+          }
+        },
+        {
+          "when": "plurify:avatar/heart/blue",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/heart/blue"
+          }
+        },
+        {
+          "when": "plurify:avatar/heart/brown",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/heart/brown"
+          }
+        },
+        {
+          "when": "plurify:avatar/heart/cyan",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/heart/cyan"
+          }
+        },
+        {
+          "when": "plurify:avatar/heart/gray",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/heart/gray"
+          }
+        },
+        {
+          "when": "plurify:avatar/heart/green",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/heart/green"
+          }
+        },
+        {
+          "when": "plurify:avatar/heart/light_blue",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/heart/light_blue"
+          }
+        },
+        {
+          "when": "plurify:avatar/heart/light_gray",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/heart/light_gray"
+          }
+        },
+        {
+          "when": "plurify:avatar/heart/lime",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/heart/lime"
+          }
+        },
+        {
+          "when": "plurify:avatar/heart/magenta",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/heart/magenta"
+          }
+        },
+        {
+          "when": "plurify:avatar/heart/orange",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/heart/orange"
+          }
+        },
+        {
+          "when": "plurify:avatar/heart/pink",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/heart/pink"
+          }
+        },
+        {
+          "when": "plurify:avatar/heart/purple",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/heart/purple"
+          }
+        },
+        {
+          "when": "plurify:avatar/heart/red",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/heart/red"
+          }
+        },
+        {
+          "when": "plurify:avatar/heart/white",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/heart/white"
+          }
+        },
+        {
+          "when": "plurify:avatar/heart/yellow",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/heart/yellow"
+          }
+        },
+        {
+          "when": "plurify:avatar/star/black",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/star/black"
+          }
+        },
+        {
+          "when": "plurify:avatar/star/blue",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/star/blue"
+          }
+        },
+        {
+          "when": "plurify:avatar/star/brown",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/star/brown"
+          }
+        },
+        {
+          "when": "plurify:avatar/star/cyan",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/star/cyan"
+          }
+        },
+        {
+          "when": "plurify:avatar/star/gray",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/star/gray"
+          }
+        },
+        {
+          "when": "plurify:avatar/star/green",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/star/green"
+          }
+        },
+        {
+          "when": "plurify:avatar/star/light_blue",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/star/light_blue"
+          }
+        },
+        {
+          "when": "plurify:avatar/star/light_gray",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/star/light_gray"
+          }
+        },
+        {
+          "when": "plurify:avatar/star/lime",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/star/lime"
+          }
+        },
+        {
+          "when": "plurify:avatar/star/magenta",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/star/magenta"
+          }
+        },
+        {
+          "when": "plurify:avatar/star/orange",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/star/orange"
+          }
+        },
+        {
+          "when": "plurify:avatar/star/pink",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/star/pink"
+          }
+        },
+        {
+          "when": "plurify:avatar/star/purple",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/star/purple"
+          }
+        },
+        {
+          "when": "plurify:avatar/star/red",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/star/red"
+          }
+        },
+        {
+          "when": "plurify:avatar/star/white",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/star/white"
+          }
+        },
+        {
+          "when": "plurify:avatar/star/yellow",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/star/yellow"
+          }
+        },
+        {
+          "when": "plurify:avatar/cat/black",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/cat/black"
+          }
+        },
+        {
+          "when": "plurify:avatar/cat/british_shorthair",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/cat/british_shorthair"
+          }
+        },
+        {
+          "when": "plurify:avatar/cat/calico",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/cat/calico"
+          }
+        },
+        {
+          "when": "plurify:avatar/cat/jellie",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/cat/jellie"
+          }
+        },
+        {
+          "when": "plurify:avatar/cat/persian",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/cat/persian"
+          }
+        },
+        {
+          "when": "plurify:avatar/cat/ragdoll",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/cat/ragdoll"
+          }
+        },
+        {
+          "when": "plurify:avatar/cat/red",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/cat/red"
+          }
+        },
+        {
+          "when": "plurify:avatar/cat/siamese",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/cat/siamese"
+          }
+        },
+        {
+          "when": "plurify:avatar/cat/tabby",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/cat/tabby"
+          }
+        },
+        {
+          "when": "plurify:avatar/cat/tuxedo",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/cat/tuxedo"
+          }
+        },
+        {
+          "when": "plurify:avatar/cat/white",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/cat/white"
+          }
+        },
+        {
+          "when": "plurify:avatar/dog/ashen_dog",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/dog/ashen_dog"
+          }
+        },
+        {
+          "when": "plurify:avatar/dog/black_dog",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/dog/black_dog"
+          }
+        },
+        {
+          "when": "plurify:avatar/dog/chestnut_dog",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/dog/chestnut_dog"
+          }
+        },
+        {
+          "when": "plurify:avatar/dog/pale_dog",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/dog/pale_dog"
+          }
+        },
+        {
+          "when": "plurify:avatar/dog/rusty_dog",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/dog/rusty_dog"
+          }
+        },
+        {
+          "when": "plurify:avatar/dog/snowy_dog",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/dog/snowy_dog"
+          }
+        },
+        {
+          "when": "plurify:avatar/dog/spotted_dog",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/dog/spotted_dog"
+          }
+        },
+        {
+          "when": "plurify:avatar/dog/striped_dog",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/dog/striped_dog"
+          }
+        },
+        {
+          "when": "plurify:avatar/dog/woods_dog",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/dog/woods_dog"
+          }
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:model",
+        "model": "minecraft:item/carrot_on_a_stick"
+      }
+    }
+  }

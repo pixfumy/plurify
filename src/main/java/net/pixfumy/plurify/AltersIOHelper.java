@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.mojang.serialization.Codec;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
@@ -20,6 +21,9 @@ import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec2;
+import net.pixfumy.plurify.gui.icon.PlurifyIcon;
+import net.pixfumy.plurify.gui.icon.PlurifyIconUtil;
+
 import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
@@ -52,8 +56,15 @@ public class AltersIOHelper {
 
                     Alter alter = new Alter(alterUuid, alterName, player, false);
 
-                    String alterIconIdentifier = alterJson.get("icon").getAsString();
-                    alter.setIcon(BuiltInRegistries.ITEM.getValue(Identifier.parse(alterIconIdentifier)));
+                    JsonObject alterIconJson = alterJson.getAsJsonObject("icon");
+                    ItemStack itemStack;
+                    if (alterIconJson.has("plurifyIconId")) {
+                        String plurifyIconId = alterIconJson.get("plurifyIconId").getAsString();
+                        itemStack = PlurifyIconUtil.getPlurifyIconById(plurifyIconId).getAsItemStack();
+                    } else {
+                        itemStack = BuiltInRegistries.ITEM.getValue(Identifier.parse(alterIconJson.get("item").getAsString())).getDefaultInstance();
+                    }
+                    alter.setIcon(itemStack);
 
                     alters.put(alterUuid, alter);
                     readPlayerAlterEntityDataFromFile(player, alter);
@@ -92,7 +103,16 @@ public class AltersIOHelper {
             JsonObject alterJson = new JsonObject();
             alterJson.addProperty("uuid", alter.getUuid().toString());
             alterJson.addProperty("name", alter.getName().getString());
-            alterJson.addProperty("icon", BuiltInRegistries.ITEM.getKey(alter.getIcon()).toString());
+
+            JsonObject alterIcon = new JsonObject();
+            ItemStack alterIconStack = alter.getIcon();
+            alterIcon.addProperty("item", BuiltInRegistries.ITEM.getKey(alterIconStack.getItem()).toString());
+            PlurifyIcon alterIconAsPlurifyIcon = PlurifyIconUtil.getAsPlurifyItem(alterIconStack);
+            if (alterIconAsPlurifyIcon != null) {
+                alterIcon.addProperty("plurifyIconId", alterIconAsPlurifyIcon.id);
+            }
+            alterJson.add("icon", alterIcon);
+
             alterJsons.add(alterJson);
         }
 
@@ -134,7 +154,7 @@ public class AltersIOHelper {
             alter.setPosition(nbtReadView.read("Position", GlobalPos.CODEC).get());
             alter.setRotation(nbtReadView.read("Rotation", Vec2.CODEC).get());
 
-            alter.setRespawn(nbtReadView.read("Respawn", ServerPlayer.RespawnConfig.CODEC).get());
+            alter.setRespawn(nbtReadView.read("Respawn", ServerPlayer.RespawnConfig.CODEC).orElse(null));
 
             alter.setHealth(nbtReadView.read("Health", Codec.FLOAT).get());
 
