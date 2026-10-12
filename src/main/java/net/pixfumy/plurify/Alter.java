@@ -10,11 +10,13 @@ import net.minecraft.world.entity.EntityEquipment;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.PlayerEnderChestContainer;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec2;
+import net.pixfumy.plurify.gui.ChangeAlterIconGui;
 import net.pixfumy.plurify.mixin.access.HungerManagerAccess;
 
 import java.util.*;
@@ -46,7 +48,7 @@ public class Alter {
 
     private ServerLevel world;
 
-    private Item icon;
+    private ItemStack icon;
 
     public Alter(ServerPlayer player, boolean copyEntityDataFromPlayer) {
         this(null, player.getName().copy(), player, copyEntityDataFromPlayer);
@@ -70,7 +72,7 @@ public class Alter {
             this.rotation = new Vec2(0, 0);
         }
 
-        this.icon = Items.DYE.magenta();
+        this.icon = ChangeAlterIconGui.ITEMS_FOR_ICONS.get(new Random().nextInt(ChangeAlterIconGui.ITEMS_FOR_ICONS.size()));
     }
 
     public UUID getUuid() {
@@ -206,11 +208,11 @@ public class Alter {
         this.keepInventory = keepInventory;
     }
 
-    public Item getIcon() {
-        return icon;
+    public ItemStack getIcon() {
+        return icon.copy();
     }
 
-    public void setIcon(Item icon) {
+    public void setIcon(ItemStack icon) {
         this.icon = icon;
     }
 

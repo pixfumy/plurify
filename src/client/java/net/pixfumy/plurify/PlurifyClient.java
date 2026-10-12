@@ -28,7 +28,7 @@ public class PlurifyClient implements ClientModInitializer {
 
 		KeyMapping plurifyOpenAltersKey = KeyMappingHelper.registerKeyMapping(
 				new KeyMapping("key." + PlurifyMain.MOD_ID + ".open_alters_menu",
-						InputConstants.Type.KEYBOARD,
+						InputConstants.Type.KEYSYM,
 						InputConstants.KEY_K,
 						CATEGORY
 						));
