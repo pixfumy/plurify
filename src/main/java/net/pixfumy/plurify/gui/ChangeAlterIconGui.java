@@ -31,20 +31,6 @@ public class ChangeAlterIconGui extends MultiPageGui<ItemStack> {
         super(player, null, alterDetailsGui, alter.getPlayerInventory());
         this.alter = alter;
         setTitle(Component.translatable("plurify.gui.change_alter_icon_gui.title", alter.getName().getString()));
-
-        // alter inventory
-        for (int i = 0; i < 36; i++) {
-            ItemStack inventoryStack = alter.getPlayerInventory().getItem(i).copy();
-
-            inventoryStack.set(DataComponents.ITEM_NAME,
-                    Component.translatable("plurify.gui.alter_details_gui.inventory_slot", inventoryStack.getHoverName().getString(), i));
-
-            if (i < 9) {
-                this.setSlot(i + 81, inventoryStack);
-            } else {
-                this.setSlot(i + 45, inventoryStack);
-            }
-        }
     }
 
     @Override

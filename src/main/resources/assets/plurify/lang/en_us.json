@@ -38,6 +38,8 @@
   "plurify.gui.main_alters_gui.go_to_alter_details": "Shift + Click to see details",
   "plurify.gui.main_alters_gui.switch_to_alter": "Click to switch",
   "plurify.gui.main_alters_gui.title": "Alters",
+  "plurify.gui.multi_page_gui.next_page": "Next Page",
+  "plurify.gui.multi_page_gui.previous_page": "Previous Page",
   "plurify.skin_change_helper.change_fail": "Error changing global skin. Mojang servers may be unavailable",
   "plurify.skin_change_helper.change_success": "Global skin successfully changed.",
   "plurify.skin_change_helper.server_restart_message": "Changing Skin"
