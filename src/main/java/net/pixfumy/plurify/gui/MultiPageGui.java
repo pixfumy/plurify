@@ -20,7 +20,7 @@ public abstract class MultiPageGui<T> extends PlurifyChestGui {
     protected boolean shouldRefresh;
 
     protected int currentPage;
-    protected final SimpleGui parent;
+    protected final PlurifyChestGui parent;
     protected static final int PAGE_SIZE = 36; // 9 * 4, use bottom row for actions, second-to-bottom row as a divider
     protected static final int BOTTOM_LEFT_SLOT = 45;
 
@@ -67,12 +67,14 @@ public abstract class MultiPageGui<T> extends PlurifyChestGui {
 
         if (parent != null) {
             ItemStack backToParentIcon = PlurifyIcon.MENU_BACK.getAsItemStack();
+            backToParentIcon.set(DataComponents.ITEM_NAME, Component.translatable(parent.backToThisGuiKey));
             this.setSlot(BOTTOM_LEFT_SLOT + 4, backToParentIcon, this.parent::open);
         }
 
         SimpleGuiElement previousPageIcon;
         if (!firstPage) {
             ItemStack previousPageItemStack = PlurifyIcon.MENU_ARROW_LEFT.getAsItemStack();
+            previousPageItemStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.multi_page_gui.previous_page"));
             previousPageIcon = new SimpleGuiElement(previousPageItemStack, GuiElement.callback(() -> {
                 this.currentPage--;
                 displayCurrentPage();
@@ -85,6 +87,7 @@ public abstract class MultiPageGui<T> extends PlurifyChestGui {
         SimpleGuiElement nextPageIcon;
         if (!lastPage) {
             ItemStack nextPageItemStack = PlurifyIcon.MENU_ARROW_RIGHT.getAsItemStack();
+            nextPageItemStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.multi_page_gui.next_page"));
             nextPageIcon = new SimpleGuiElement(nextPageItemStack, GuiElement.callback(() -> {
                 this.currentPage++;
                 displayCurrentPage();
