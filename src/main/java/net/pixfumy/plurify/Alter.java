@@ -1,7 +1,6 @@
 package net.pixfumy.plurify;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -9,13 +8,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityEquipment;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.PlayerEnderChestContainer;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 import net.pixfumy.plurify.gui.ChangeAlterIconGui;
 import net.pixfumy.plurify.mixin.access.HungerManagerAccess;
 
@@ -28,7 +26,9 @@ public class Alter {
     private ServerPlayer player;
     private Inventory playerInventory;
     private PlayerEnderChestContainer enderChestInventory;
-    private GlobalPos position;
+
+    private ServerLevel level;
+    private Vec3 position;
     private Vec2 rotation;
 
     private ServerPlayer.RespawnConfig respawn;
@@ -65,10 +65,9 @@ public class Alter {
             setAlterEntityDataFromPlayer();
             this.keepInventory = player.level().getGameRules().get(GameRules.KEEP_INVENTORY);
         } else {
-            this.position = new GlobalPos(
-                    player.level().getServer().findRespawnDimension().dimension(),
-                    BlockPos.containing(TeleportTransition.createDefault(player, TeleportTransition.DO_NOTHING).position())
-            );
+            this.level = player.level().getServer().overworld();
+            BlockPos spawnPoint = BlockPos.containing(TeleportTransition.createDefault(player, TeleportTransition.DO_NOTHING).position());
+            this.position = new Vec3(spawnPoint.getX(), spawnPoint.getY(), spawnPoint.getZ());
             this.rotation = new Vec2(0, 0);
         }
 
@@ -112,11 +111,19 @@ public class Alter {
         this.enderChestInventory = enderChestInventory;
     }
 
-    public GlobalPos getPosition() {
+    public ServerLevel getLevel() {
+        return level;
+    }
+
+    public void setLevel(ServerLevel level) {
+        this.level = level;
+    }
+
+    public Vec3 getPosition() {
         return position;
     }
 
-    public void setPosition(GlobalPos position) {
+    public void setPosition(Vec3 position) {
         this.position = position;
     }
 
@@ -229,7 +236,8 @@ public class Alter {
             this.enderChestInventory.setItem(i, this.player.getEnderChestInventory().getItem(i));
         }
 
-        this.position = new GlobalPos(player.level().dimension(), player.blockPosition());
+        this.level = player.level();
+        this.position = player.position();
 
         this.rotation = this.player.getRotationVector();
 
@@ -256,14 +264,13 @@ public class Alter {
             this.player.getEnderChestInventory().setItem(i, this.getEnderChestInventory().getItem(i));
         }
 
-        ResourceKey<Level> alterWorld = this.getPosition().dimension();
-        BlockPos alterPos = this.getPosition().pos();
+        Vec3 alterPos = this.getPosition();
         Vec2 alterRot = this.getRotation();
 
-        this.player.teleportTo(player.level().getServer().getLevel(alterWorld),
-                alterPos.getX(),
-                alterPos.getY(),
-                alterPos.getZ(),
+        this.player.teleportTo(this.level,
+                alterPos.x,
+                alterPos.y,
+                alterPos.z,
                 Set.of(),
                 alterRot.y,
                 alterRot.x,

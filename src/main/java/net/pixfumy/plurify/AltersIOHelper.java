@@ -9,6 +9,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.player.Inventory;
@@ -21,6 +22,7 @@ import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 import net.pixfumy.plurify.gui.icon.PlurifyIcon;
 import net.pixfumy.plurify.gui.icon.PlurifyIconUtil;
 
@@ -152,7 +154,8 @@ public class AltersIOHelper {
                 alter.getEnderChestInventory().setItem(i, enderChestInventoryListReadView.get(i));
             }
 
-            alter.setPosition(nbtReadView.read("Position", GlobalPos.CODEC).get());
+            alter.setLevel(player.level().getServer().getLevel(nbtReadView.read("World", ServerLevel.RESOURCE_KEY_CODEC).get()));
+            alter.setPosition(nbtReadView.read("Position", Vec3.CODEC).get());
             alter.setRotation(nbtReadView.read("Rotation", Vec2.CODEC).get());
 
             alter.setRespawn(nbtReadView.read("Respawn", ServerPlayer.RespawnConfig.CODEC).orElse(null));
@@ -189,7 +192,8 @@ public class AltersIOHelper {
             enderChestInventoryListAppender.add(enderChestInventory.getItem(i));
         }
 
-        nbtWriteView.store("Position", GlobalPos.CODEC, alter.getPosition());
+        nbtWriteView.store("World", ServerLevel.RESOURCE_KEY_CODEC, alter.getLevel().dimension());
+        nbtWriteView.store("Position", Vec3.CODEC, alter.getPosition());
         nbtWriteView.store("Rotation", Vec2.CODEC, alter.getRotation());
 
         if (alter.getRespawn() != null) {

@@ -9,6 +9,7 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.inventory.MenuType;
@@ -17,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.phys.Vec3;
 import net.pixfumy.plurify.Alter;
 import net.pixfumy.plurify.AltersIOHelper;
 import net.pixfumy.plurify.IAltersOwner;
@@ -129,15 +131,16 @@ public class AlterDetailsGui extends PlurifyChestGui {
         // Last Seen at
         ItemStack lastSeenStack = PlurifyIcon.MENU_LOCATION.getAsItemStack();
         lastSeenStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.alter_details_gui.last_seen.name"));
-        GlobalPos alterPos = alter.getPosition();
+        Vec3 alterPos = alter.getPosition();
+        ServerLevel alterWorld = alter.getLevel();
 
         ItemLore positionComponent = ItemLore.EMPTY.withLineAdded(
                 Component.translatable("plurify.gui.alter_details_gui.last_seen.description",
-                        alterPos.pos().getX(),
-                        alterPos.pos().getY(),
-                        alterPos.pos().getZ(),
+                        (int) alterPos.x,
+                        (int) alterPos.y,
+                        (int) alterPos.z,
                         Component.translatable("plurify.gui.alter_details_gui.last_seen.dimension."
-                                + alterPos.dimension().identifier().getPath()
+                                + alterWorld.dimension().identifier().getPath()
                         )
                 )
         );
