@@ -59,9 +59,6 @@ public abstract class PlayerAltersMixin extends Player implements IAltersOwner {
             this.alters = new HashMap<UUID, Alter>();
         }
         this.alters.put(alter.getUuid(), alter);
-
-        ServerPlayer thisPlayer = (ServerPlayer) (Object) this;
-        AltersIOHelper.writePlayerAltersToFile(thisPlayer);
     }
 
     @Override
@@ -70,7 +67,6 @@ public abstract class PlayerAltersMixin extends Player implements IAltersOwner {
             return;
         }
         this.alters.remove(alter.getUuid());
-        AltersIOHelper.writePlayerAltersToFile((ServerPlayer) (Object) this);
     }
 
     @Override
@@ -79,12 +75,10 @@ public abstract class PlayerAltersMixin extends Player implements IAltersOwner {
 
         // save current alter data
         plurify$getCurrentAlter().setAlterEntityDataFromPlayer();
-        AltersIOHelper.writePlayerAlterEntityDataToFile(thisPlayer, plurify$getCurrentAlter());
 
-        // set the currentAlter to the new alter, set the player data, and write to the main json file
+        // set the currentAlter to the new alter and set the player data
         this.plurify$setCurrentAlter(alter);
         alter.setPlayerEntityDataFromAlter();
-        AltersIOHelper.writePlayerAltersToFile(thisPlayer);
 
         ServerPlayNetworking.send(thisPlayer,
                 new PlayerSwitchAlterS2CPacket(currentAlter.getUuid().toString(), currentAlter.getName().getString()));
@@ -112,10 +106,9 @@ public abstract class PlayerAltersMixin extends Player implements IAltersOwner {
     @Inject(method = "addAdditionalSaveData", at = @At("HEAD"))
     private void writePlayerEntityDataOnAutosave(ValueOutput view, CallbackInfo ci) {
         ServerPlayer thisPlayer = (ServerPlayer) (Object) this;
-        Alter alter = plurify$getCurrentAlter();
-        if (alter != null) {
-            alter.setAlterEntityDataFromPlayer();
-            AltersIOHelper.writePlayerAlterEntityDataToFile(thisPlayer, plurify$getCurrentAlter());
-        }
+        Alter currentAlter = plurify$getCurrentAlter();
+        currentAlter.setAlterEntityDataFromPlayer();
+
+        AltersIOHelper.writePlayerAltersToFile(thisPlayer);
     }
 }

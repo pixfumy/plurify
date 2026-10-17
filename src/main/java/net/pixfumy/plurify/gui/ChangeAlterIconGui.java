@@ -46,7 +46,6 @@ public class ChangeAlterIconGui extends MultiPageGui<ItemStack> {
         }
         GuiElement alterAvatarIcon = new SimpleGuiElement(itemStackCopy, GuiElement.callback(() -> {
             alter.setIcon(itemStackCopy);
-            AltersIOHelper.writePlayerAltersToFile(player);
         }));
         this.setSlot(i, alterAvatarIcon);
     }

@@ -34,9 +34,6 @@ public class MainAltersGui extends MultiPageGui<Alter> {
 
     @Override
     protected List<Alter> getElements() {
-        if (((IAltersOwner)player).plurify$getAlters().isEmpty()) {
-            AltersIOHelper.loadPlayerAltersFromFile(player);
-        }
         return ((IAltersOwner) player).plurify$getAlters().values().stream().toList();
     }
 

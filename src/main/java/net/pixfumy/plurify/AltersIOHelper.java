@@ -114,6 +114,7 @@ public class AltersIOHelper {
             alterJson.add("icon", alterIcon);
 
             alterJsons.add(alterJson);
+            writePlayerAlterEntityDataToFile(player, alter);
         }
 
         playerJson.add("alters", alterJsons);
@@ -131,7 +132,7 @@ public class AltersIOHelper {
         }
     }
 
-    public static void readPlayerAlterEntityDataFromFile(ServerPlayer player, Alter alter) {
+    private static void readPlayerAlterEntityDataFromFile(ServerPlayer player, Alter alter) {
         Path entityDataFile = getPlurifyWorldPlayerAlterFile(player, alter);
         if (!entityDataFile.toFile().exists()) {
             return;
@@ -173,7 +174,7 @@ public class AltersIOHelper {
         }
     }
 
-    public static void writePlayerAlterEntityDataToFile(ServerPlayer player, Alter alter) {
+    private static void writePlayerAlterEntityDataToFile(ServerPlayer player, Alter alter) {
         Inventory playerInventory = alter.getPlayerInventory();
 
         TagValueOutput nbtWriteView = TagValueOutput.createWithContext(new ProblemReporter.ScopedCollector(PlurifyMain.LOGGER), player.registryAccess());

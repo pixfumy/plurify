@@ -23,7 +23,6 @@ public class NameAlterGui extends SignGui {
         ((IAltersOwner) player).plurify$removeFromAlters(alter);
         alter.setName(this.getLine(0));
         ((IAltersOwner) player).plurify$addToAlters(alter);
-        AltersIOHelper.writePlayerAlterEntityDataToFile(player, alter);
         this.parent.open();
     }
 }
