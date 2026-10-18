@@ -54,6 +54,13 @@
           }
         },
         {
+          "when": "plurify:menu/ender_chest",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/ender_chest"
+          }
+        },
+        {
           "when": "plurify:menu/keep_inv_off",
           "model": {
             "type": "minecraft:model",

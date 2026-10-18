@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.pixfumy.plurify.gui.icon.PlurifyIcon;
+import net.pixfumy.plurify.gui.icon.PlurifyIconUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -59,8 +60,7 @@ public abstract class MultiPageGui<T> extends PlurifyChestGui {
         }
 
         // green glass panes to separate action bar from selectable items
-        ItemStack greenGlassPane = Items.STAINED_GLASS_PANE.green().getDefaultInstance();
-        greenGlassPane.set(DataComponents.ITEM_NAME, Component.literal(""));
+        ItemStack greenGlassPane = PlurifyIconUtil.getItemStackWithNoTooltip(Items.STAINED_GLASS_PANE.green());
         for (int i = PAGE_SIZE; i < BOTTOM_LEFT_SLOT; i++) {
             this.setSlot(i, greenGlassPane.copy());
         }
@@ -73,7 +73,13 @@ public abstract class MultiPageGui<T> extends PlurifyChestGui {
 
         SimpleGuiElement previousPageIcon;
         if (!firstPage) {
+            ItemStack currentPageItemStack = PlurifyIcon.MENU_PAGE.getAsItemStack();
+            currentPageItemStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.multi_page_gui.current_page"));
+            currentPageItemStack.setCount(currentPage + 1); // since we are counting from 0 but want the UI to count from 1
+            this.setSlot(BOTTOM_LEFT_SLOT + 5, currentPageItemStack);
+
             ItemStack previousPageItemStack = PlurifyIcon.MENU_ARROW_LEFT.getAsItemStack();
+            previousPageItemStack.setCount(currentPage); // since we are counting from 0 but want the UI to count from 1
             previousPageItemStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.multi_page_gui.previous_page"));
             previousPageIcon = new SimpleGuiElement(previousPageItemStack, GuiElement.callback(() -> {
                 this.currentPage--;
@@ -87,6 +93,7 @@ public abstract class MultiPageGui<T> extends PlurifyChestGui {
         SimpleGuiElement nextPageIcon;
         if (!lastPage) {
             ItemStack nextPageItemStack = PlurifyIcon.MENU_ARROW_RIGHT.getAsItemStack();
+            nextPageItemStack.setCount(currentPage + 2); // since we are counting from 0 but want the UI to count from 1
             nextPageItemStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.multi_page_gui.next_page"));
             nextPageIcon = new SimpleGuiElement(nextPageItemStack, GuiElement.callback(() -> {
                 this.currentPage++;

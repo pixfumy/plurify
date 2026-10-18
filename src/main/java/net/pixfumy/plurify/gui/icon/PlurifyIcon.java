@@ -1,12 +1,16 @@
 package net.pixfumy.plurify.gui.icon;
 
+import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomModelData;
+import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.item.component.TooltipDisplay;
 
+import javax.xml.crypto.Data;
 import java.util.List;
 
 public enum PlurifyIcon {
@@ -17,9 +21,11 @@ public enum PlurifyIcon {
     MENU_CHANGE_SKIN(Items.CARROT_ON_A_STICK, "plurify:menu/change_skin"),
     MENU_CHOOSE_ICON(Items.CARROT_ON_A_STICK, "plurify:menu/choose_icon"),
     MENU_DELETE(Items.CARROT_ON_A_STICK, "plurify:menu/delete"),
+    MENU_ENDER_CHEST(Items.CARROT_ON_A_STICK, "plurify:menu/ender_chest"),
     MENU_KEEP_INV_OFF(Items.CARROT_ON_A_STICK, "plurify:menu/keep_inv_off"),
     MENU_KEEP_INV_ON(Items.CARROT_ON_A_STICK, "plurify:menu/keep_inv_on"),
     MENU_LOCATION(Items.CARROT_ON_A_STICK, "plurify:menu/location"),
+    MENU_PAGE(Items.GUNPOWDER, "plurify:menu/page"),
     MENU_RENAME(Items.CARROT_ON_A_STICK, "plurify:menu/rename"),
     MENU_SWITCH(Items.CARROT_ON_A_STICK, "plurify:menu/switch"),
     AVATAR_BLACK_CAT(Items.CARROT_ON_A_STICK, "plurify:avatar/cat/black"),

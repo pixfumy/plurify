@@ -23,13 +23,25 @@ import net.pixfumy.plurify.Alter;
 import net.pixfumy.plurify.AltersIOHelper;
 import net.pixfumy.plurify.IAltersOwner;
 import net.pixfumy.plurify.gui.icon.PlurifyIcon;
+import net.pixfumy.plurify.gui.icon.PlurifyIconUtil;
 import net.pixfumy.plurify.networking.OpenAlterSkinScreenS2CPayload;
 
 import java.util.*;
 
 public class AlterDetailsGui extends PlurifyChestGui {
+    private static final int ARMOUR_HELMET_SLOT = 0;
+    private static final int RENAME_ALTER_SLOT = 1;
+    private static final int CHANGE_ICON_SLOT = 3;
+    private static final int LAST_SEEN_SLOT = 8;
+    private static final int ALTER_ICON_SLOT = 11;
+    private static final int KEEP_INV_SLOT = 15;
+    private static final int ENDER_CHEST_SLOT = 25;
+    private static final int CHANGE_SKIN_SLOT = 28;
+    private static final int DELETE_ALTER_SLOT = 30;
+    private static final int OFFHAND_STACK_SLOT = 31;
+    private static final int SWITCH_TO_ALTER_SLOT = 45;
+
     private Alter alter;
-    private final ItemStack keepInventoryStack;
 
     // array of EquipmentSlots feet, legs, chest, head
     private static final EquipmentSlot[] ARMOR_SLOTS = Arrays.stream(EquipmentSlot.values())
@@ -37,22 +49,25 @@ public class AlterDetailsGui extends PlurifyChestGui {
             .sorted(Comparator.comparingInt(EquipmentSlot::getId))
             .toArray(EquipmentSlot[]::new);
 
+    @Override
+    public boolean open() {
+        setTitle(alter.getName());
+        return super.open();
+    }
+
     public AlterDetailsGui(ServerPlayer player, Alter alter, MainAltersGui mainAltersGui) {
         super(player, "plurify.gui.alter_details_gui.back_to_alter_details", mainAltersGui, alter.getPlayerInventory());
 
         this.alter = alter;
-        setTitle(this.alter.getName());
 
         // start with a red background
-        ItemStack redGlassPane = Items.STAINED_GLASS_PANE.red().getDefaultInstance();
-        redGlassPane.set(DataComponents.ITEM_NAME, Component.literal(""));
+        ItemStack redGlassPane = PlurifyIconUtil.getItemStackWithNoTooltip(Items.STAINED_GLASS_PANE.red());
         for (int i = 0; i < 36; i++) {
             this.setSlot(i, redGlassPane.copy());
         }
 
         // make a grid of black panes to mimic the player texture in the inventory
-        ItemStack blackGlassPane = Items.STAINED_GLASS_PANE.black().getDefaultInstance();
-        blackGlassPane.set(DataComponents.ITEM_NAME, Component.literal(""));
+        ItemStack blackGlassPane = PlurifyIconUtil.getItemStackWithNoTooltip(Items.STAINED_GLASS_PANE.black());
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 this.setSlot(9 * j + i, blackGlassPane.copy());
@@ -60,8 +75,7 @@ public class AlterDetailsGui extends PlurifyChestGui {
         }
 
         // make a 4x4 grid of brown panes to mimic the crafting texture
-        ItemStack brownGlassPane = Items.STAINED_GLASS_PANE.brown().getDefaultInstance();
-        brownGlassPane.set(DataComponents.ITEM_NAME, Component.literal(""));
+        ItemStack brownGlassPane = PlurifyIconUtil.getItemStackWithNoTooltip(Items.STAINED_GLASS_PANE.brown());
         for (int i : List.of(15, 16, 24, 25)) {
             this.setSlot(i, brownGlassPane.copy());
         }
@@ -74,59 +88,13 @@ public class AlterDetailsGui extends PlurifyChestGui {
                     Component.translatable("plurify.gui.alter_details_gui.armor_slot." + ARMOR_SLOTS[i].getName(),
                             armourStack.getHoverName().getString()));
 
-            this.setSlot(27 - i * 9, armourStack);
+            this.setSlot(ARMOUR_HELMET_SLOT + 27 - i * 9, armourStack);
         }
 
-        // offhand slot
-        ItemStack offhandStack = alter.getPlayerInventory().getItem(40).copy();
-        offhandStack.set(DataComponents.ITEM_NAME,
-                Component.translatable("plurify.gui.alter_details_gui.offhand_slot", offhandStack.getHoverName().getString()));
-
-        this.setSlot(31, offhandStack);
-
-        // green glass panes to separate action bar from player inventory
-        ItemStack greenGlassPane = Items.STAINED_GLASS_PANE.green().getDefaultInstance();
-        greenGlassPane.set(DataComponents.ITEM_NAME, Component.literal(""));
-        for (int i = 36; i < 45; i++) {
-            this.setSlot(i, greenGlassPane.copy());
-        }
-
-        ItemStack alterIcon = alter.getIcon();
-        this.setSlot(11, alterIcon);
-
-        // switch to alter
-        ItemStack switchToPlayerStack = PlurifyIcon.MENU_SWITCH.getAsItemStack();
-        switchToPlayerStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.alter_details_gui.switch_to_alter"));
-        switchToPlayerStack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
-        this.setSlot(45, switchToPlayerStack.copy(), () -> ((IAltersOwner)player).plurify$switchToAlter(alter));
-
-        // Rename this Alter
-        ItemStack renameStack = PlurifyIcon.MENU_RENAME.getAsItemStack();
-        renameStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.alter_details_gui.rename_alter"));
-        this.setSlot(46, renameStack, () -> new NameAlterGui(player, alter, this).open());
-
-        // Change Icon
-        ItemStack changeIconStack = PlurifyIcon.MENU_CHOOSE_ICON.getAsItemStack();
-        changeIconStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.alter_details_gui.change_alter_icon"));
-        this.setSlot(47, changeIconStack, () -> new ChangeAlterIconGui(player, alter, this).open());
-
-        // Delete Alter
-        ItemStack deleteAlterStack = PlurifyIcon.MENU_DELETE.getAsItemStack();
-        deleteAlterStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.alter_details_gui.delete_alter"));
-        if (alter.isCurrentAlter()) {
-            deleteAlterStack.set(DataComponents.LORE,
-                    ItemLore.EMPTY.withLineAdded(Component.translatable("plurify.gui.alter_details_gui.delete_alter.disabled")
-                            .setStyle(Style.EMPTY.withColor(ChatFormatting.RED))));
-            ItemStack barrier = deleteAlterStack.copy();
-            barrier.set(DataComponents.ITEM_MODEL, Items.BARRIER.getDefaultInstance().get(DataComponents.ITEM_MODEL));
-
-            ItemStack[] lavaBucketAndBarrier = new ItemStack[]{deleteAlterStack, barrier};
-            this.setSlot(48, new AnimatedGuiElement(lavaBucketAndBarrier, 20, false, GuiElement.EMPTY_CALLBACK));
-        } else {
-            this.setSlot(48, deleteAlterStack, (() ->
-                    new DeleteAlterGui(player, alter, this, mainAltersGui).open()));
-        }
-
+        // alter icon
+        ItemStack alterIconStack = alter.getIcon();
+        alterIconStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.alter_details_gui.selected_icon"));
+        this.setSlot(ALTER_ICON_SLOT, alterIconStack);
 
         // Last Seen at
         ItemStack lastSeenStack = PlurifyIcon.MENU_LOCATION.getAsItemStack();
@@ -146,13 +114,59 @@ public class AlterDetailsGui extends PlurifyChestGui {
         );
 
         lastSeenStack.set(DataComponents.LORE, positionComponent);
-        this.setSlot(49, lastSeenStack);
+        this.setSlot(LAST_SEEN_SLOT, lastSeenStack);
+
+        // offhand slot
+        ItemStack offhandStack = alter.getPlayerInventory().getItem(40).copy();
+        offhandStack.set(DataComponents.ITEM_NAME,
+                Component.translatable("plurify.gui.alter_details_gui.offhand_slot", offhandStack.getHoverName().getString()));
+
+        this.setSlot(OFFHAND_STACK_SLOT, offhandStack);
+
+        // green glass panes to separate action bar from player inventory
+        ItemStack greenGlassPane = PlurifyIconUtil.getItemStackWithNoTooltip(Items.STAINED_GLASS_PANE.green());
+        for (int i = 36; i < 45; i++) {
+            this.setSlot(i, greenGlassPane.copy());
+        }
+
+        // switch to alter
+        ItemStack switchToPlayerStack = PlurifyIcon.MENU_SWITCH.getAsItemStack();
+        switchToPlayerStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.alter_details_gui.switch_to_alter"));
+        switchToPlayerStack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
+        this.setSlot(SWITCH_TO_ALTER_SLOT, switchToPlayerStack.copy(), () -> ((IAltersOwner)player).plurify$switchToAlter(alter));
+
+        // Rename this Alter
+        ItemStack renameStack = PlurifyIcon.MENU_RENAME.getAsItemStack();
+        renameStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.alter_details_gui.rename_alter"));
+        this.setSlot(RENAME_ALTER_SLOT, renameStack, () -> new NameAlterGui(player, alter, this).open());
+
+        // Change Icon
+        ItemStack changeIconStack = PlurifyIcon.MENU_CHOOSE_ICON.getAsItemStack();
+        changeIconStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.alter_details_gui.change_alter_icon"));
+        this.setSlot(CHANGE_ICON_SLOT, changeIconStack, () -> new ChangeAlterIconGui(player, alter, this).open());
+
+        // Delete Alter
+        ItemStack deleteAlterStack = PlurifyIcon.MENU_DELETE.getAsItemStack();
+        deleteAlterStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.alter_details_gui.delete_alter"));
+        if (alter.isCurrentAlter()) {
+            deleteAlterStack.set(DataComponents.LORE,
+                    ItemLore.EMPTY.withLineAdded(Component.translatable("plurify.gui.alter_details_gui.delete_alter.disabled")
+                            .setStyle(Style.EMPTY.withColor(ChatFormatting.RED))));
+            ItemStack barrier = deleteAlterStack.copy();
+            barrier.set(DataComponents.ITEM_MODEL, Items.BARRIER.getDefaultInstance().get(DataComponents.ITEM_MODEL));
+
+            ItemStack[] lavaBucketAndBarrier = new ItemStack[]{deleteAlterStack, barrier};
+            this.setSlot(DELETE_ALTER_SLOT, new AnimatedGuiElement(lavaBucketAndBarrier, 20, false, GuiElement.EMPTY_CALLBACK));
+        } else {
+            this.setSlot(DELETE_ALTER_SLOT, deleteAlterStack, (() ->
+                    new DeleteAlterGui(player, alter, this, mainAltersGui).open()));
+        }
 
         // change skin
         ItemStack changeSkinStack = PlurifyIcon.MENU_CHANGE_SKIN.getAsItemStack();
         changeSkinStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.alter_details_gui.change_skin"));
         if (((IAltersOwner) player).plurify$isClientLoaded()) {
-            this.setSlot(50, changeSkinStack, () ->
+            this.setSlot(CHANGE_SKIN_SLOT, changeSkinStack, () ->
                     {
                         this.close();
                         ServerPlayNetworking.send(player, new OpenAlterSkinScreenS2CPayload(alter.getName().getString(), alter.getUuid().toString()));
@@ -165,20 +179,26 @@ public class AlterDetailsGui extends PlurifyChestGui {
             ItemStack barrier = changeSkinStack.copy();
             barrier.set(DataComponents.ITEM_MODEL, Items.BARRIER.getDefaultInstance().get(DataComponents.ITEM_MODEL));
             ItemStack[] playerHeadAndBarrier = new ItemStack[]{changeSkinStack, barrier};
-            this.setSlot(50, new AnimatedGuiElement(playerHeadAndBarrier, 20, false, GuiElement.EMPTY_CALLBACK));
+            this.setSlot(CHANGE_SKIN_SLOT, new AnimatedGuiElement(playerHeadAndBarrier, 20, false, GuiElement.EMPTY_CALLBACK));
         }
 
+        ItemStack enderChestStack = PlurifyIcon.MENU_ENDER_CHEST.getAsItemStack();
+        enderChestStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.alter_details_gui.view_ender_chest"));
+        this.setSlot(ENDER_CHEST_SLOT, enderChestStack, () -> {
+            new ViewEnderChestGui(player, alter, this).open();
+        });
+
         // Keep Inventory Toggle
-        this.keepInventoryStack = getKeepInvIcon(alter.hasKeepInventory());
-        this.setSlot(51, keepInventoryStack, this::onKeepInvToggle);
+        ItemStack keepInventoryStack = getKeepInvIcon(alter.hasKeepInventory());
+        this.setSlot(KEEP_INV_SLOT, keepInventoryStack, this::onKeepInvToggle);
 
     }
 
     private ItemStack getKeepInvIcon(boolean hasKeepInv) {
-        ItemStack greenBundle = PlurifyIcon.MENU_KEEP_INV_ON.getAsItemStack();
-        ItemStack redBundle = PlurifyIcon.MENU_KEEP_INV_OFF.getAsItemStack();
+        ItemStack keepInvOnStack = PlurifyIcon.MENU_KEEP_INV_ON.getAsItemStack();
+        ItemStack keepInvOffStack = PlurifyIcon.MENU_KEEP_INV_OFF.getAsItemStack();
 
-        ItemStack keepInventoryStack = hasKeepInv ? greenBundle : redBundle;
+        ItemStack keepInventoryStack = hasKeepInv ? keepInvOnStack : keepInvOffStack;
 
         keepInventoryStack.set(DataComponents.ITEM_NAME,
                 Component.translatable("plurify.gui.alter_details_gui.keep_inventory",
@@ -193,7 +213,7 @@ public class AlterDetailsGui extends PlurifyChestGui {
 
         ItemStack keepInventoryStack = getKeepInvIcon(alter.hasKeepInventory());
 
-        this.setSlot(51, keepInventoryStack, this::onKeepInvToggle);
+        this.setSlot(KEEP_INV_SLOT, keepInventoryStack, this::onKeepInvToggle);
 
     }
 }

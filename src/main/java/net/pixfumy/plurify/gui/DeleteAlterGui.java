@@ -12,6 +12,7 @@ import net.minecraft.world.item.Items;
 import net.pixfumy.plurify.Alter;
 import net.pixfumy.plurify.IAltersOwner;
 import net.pixfumy.plurify.gui.icon.PlurifyIcon;
+import net.pixfumy.plurify.gui.icon.PlurifyIconUtil;
 
 public class DeleteAlterGui extends PlurifyChestGui {
     private final Alter alter;
@@ -22,8 +23,7 @@ public class DeleteAlterGui extends PlurifyChestGui {
         setTitle(Component.translatable("plurify.gui.delete_alter_gui.title", this.alter.getName().getString()));
 
         // green background for YES option
-        ItemStack greenGlassPane = Items.STAINED_GLASS_PANE.green().getDefaultInstance();
-        greenGlassPane.set(DataComponents.ITEM_NAME, Component.literal(""));
+        ItemStack greenGlassPane = PlurifyIconUtil.getItemStackWithNoTooltip(Items.STAINED_GLASS_PANE.green());
         for (int i = 0; i < 27; i++) {
             this.setSlot(i, greenGlassPane.copy());
         }
@@ -40,8 +40,7 @@ public class DeleteAlterGui extends PlurifyChestGui {
         }));
 
         // red background for NO option
-        ItemStack redGlassPane = Items.STAINED_GLASS_PANE.red().getDefaultInstance();
-        redGlassPane.set(DataComponents.ITEM_NAME, Component.literal(""));
+        ItemStack redGlassPane = PlurifyIconUtil.getItemStackWithNoTooltip(Items.STAINED_GLASS_PANE.red());
         for (int i = 27; i < 54; i++) {
             this.setSlot(i, redGlassPane.copy());
         }

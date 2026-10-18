@@ -41,6 +41,7 @@ public class ChangeAlterIconGui extends MultiPageGui<ItemStack> {
     @Override
     protected void setCurrentPageSlot(int i, ItemStack itemStack) {
         ItemStack itemStackCopy = itemStack.copy();
+        itemStackCopy.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.change_alter_icon_gui.use_icon"));
         if (PlurifyIconUtil.getAsPlurifyItem(itemStackCopy) == PlurifyIconUtil.getAsPlurifyItem(alter.getIcon())) {
             itemStackCopy.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
         }

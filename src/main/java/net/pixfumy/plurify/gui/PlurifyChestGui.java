@@ -35,7 +35,7 @@ public class PlurifyChestGui extends SimpleGui {
             // back to parent
             ItemStack backArrow = PlurifyIcon.MENU_BACK.getAsItemStack();
             backArrow.set(DataComponents.ITEM_NAME, Component.translatable(parent.backToThisGuiKey));
-            this.setSlot(53, backArrow, parent::open);
+            this.setSlot(49, backArrow, parent::open);
         }
 
         if (playerInventory != null) {

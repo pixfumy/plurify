@@ -2,9 +2,12 @@ package net.pixfumy.plurify.gui.icon;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTextures;
+import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomModelData;
+import net.minecraft.world.item.component.TooltipDisplay;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -36,6 +39,12 @@ public class PlurifyIconUtil {
                 .findFirst();
 
         return optionalPlurifyIcon.orElse(null);
+    }
+
+    public static ItemStack getItemStackWithNoTooltip(Item item) {
+        ItemStack itemStack = item.getDefaultInstance();
+        itemStack.set(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(true, ReferenceSortedSets.emptySet()));
+        return itemStack;
     }
 
     public static PlurifyIcon getPlurifyIconById(String id) {
