@@ -8,11 +8,10 @@
   "overwrites": {
     "requireAnnotations": true
   },
-  "mixins": [
-    "PlayerSkinTextureDownloaderAccess",
-    "SkinMixin"
-  ],
+
   "client": [
+    "PlayerSkinTextureDownloaderAccess",
+    "SkinMixin",
     "ClientSidePlayerRespawnMixin"
   ]
 }

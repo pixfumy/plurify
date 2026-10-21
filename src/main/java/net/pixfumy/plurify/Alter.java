@@ -1,21 +1,25 @@
 package net.pixfumy.plurify;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EntityEquipment;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.PlayerEnderChestContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.pixfumy.plurify.gui.ChangeAlterIconGui;
 import net.pixfumy.plurify.mixin.access.HungerManagerAccess;
+import net.pixfumy.plurify.mixin.access.TagValueOutputAccess;
 
 import java.util.*;
 
@@ -49,6 +53,8 @@ public class Alter {
     private ServerLevel world;
 
     private ItemStack icon;
+
+    private CompoundTag vehicle;
 
     public Alter(ServerPlayer player, boolean copyEntityDataFromPlayer) {
         this(null, player.getName().copy(), player, copyEntityDataFromPlayer);
@@ -207,6 +213,14 @@ public class Alter {
         this.health = health;
     }
 
+    public CompoundTag getVehicle() {
+        return vehicle;
+    }
+
+    public void setVehicle(CompoundTag vehicle) {
+        this.vehicle = vehicle;
+    }
+
     public boolean hasKeepInventory() {
         return keepInventory;
     }
@@ -253,6 +267,14 @@ public class Alter {
         this.saturationLevel = this.player.getFoodData().getSaturationLevel();
         this.exhaustion = ((HungerManagerAccess) this.player.getFoodData()).getExhaustionLevel();
         this.foodTickTimer = ((HungerManagerAccess) this.player.getFoodData()).getTickTimer();
+
+        TagValueOutput vehicleTagValueOutput = TagValueOutput.createWithContext(new ProblemReporter.ScopedCollector(PlurifyMain.LOGGER), player.registryAccess());
+        Entity vehicle = player.getVehicle();
+        Entity rootVehicle = player.getRootVehicle();
+        if (vehicle != null) {
+            rootVehicle.save(vehicleTagValueOutput);
+            this.vehicle = ((TagValueOutputAccess) vehicleTagValueOutput).getOutput();
+        }
     }
 
     public void setPlayerEntityDataFromAlter() {
@@ -267,6 +289,16 @@ public class Alter {
         Vec3 alterPos = this.getPosition();
         Vec2 alterRot = this.getRotation();
 
+        Entity vehicleEntity = null;
+        if (this.player.getVehicle() != null) {
+            this.player.getVehicle().remove(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
+        }
+        if (this.vehicle != null) {
+            ValueInput vehicleTagValueInput = TagValueInput.create(new ProblemReporter.ScopedCollector(PlurifyMain.LOGGER), player.registryAccess(), this.vehicle);
+            vehicleEntity = EntityType.create(vehicleTagValueInput, this.level, new EntitySpawnRequest(EntitySpawnReason.LOAD, true)).get();
+            this.level.addFreshEntity(vehicleEntity);
+        }
+
         this.player.teleportTo(this.level,
                 alterPos.x,
                 alterPos.y,
@@ -276,6 +308,10 @@ public class Alter {
                 alterRot.x,
                 false
         );
+
+        if (vehicleEntity != null) {
+            this.player.startRiding(vehicleEntity, true, false);
+        }
 
         this.player.setRespawnPosition(this.respawn, false);
 

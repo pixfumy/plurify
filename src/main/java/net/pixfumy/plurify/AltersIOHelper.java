@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.mojang.serialization.Codec;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
@@ -12,10 +13,15 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.VehicleEntity;
 import net.minecraft.world.inventory.PlayerEnderChestContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
@@ -170,6 +176,9 @@ public class AltersIOHelper {
             alter.setExhaustion(nbtReadView.read("ExperienceLevel", Codec.FLOAT).get());
             alter.setFoodTickTimer(nbtReadView.read("FoodTickTimer", Codec.INT).get());
 
+            alter.setVehicle(nbtReadView.read("Vehicle", CompoundTag.CODEC).get());
+
+
             alter.setKeepInventory(nbtReadView.read("KeepInventory", Codec.BOOL).get());
 
         } catch (IOException | NoSuchElementException | NullPointerException e) {
@@ -211,6 +220,11 @@ public class AltersIOHelper {
         nbtWriteView.store("FoodTickTimer", Codec.INT, alter.getTotalExperience());
 
         nbtWriteView.store("KeepInventory", Codec.BOOL, alter.hasKeepInventory());
+
+        CompoundTag vehicle = alter.getVehicle();
+        if (vehicle != null) {
+            nbtWriteView.store("Vehicle", CompoundTag.CODEC, vehicle);
+        }
 
         Path entityDataFile = getPlurifyWorldPlayerAlterFile(player, alter);
         try {
