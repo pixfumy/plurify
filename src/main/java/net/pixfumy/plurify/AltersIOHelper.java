@@ -16,6 +16,7 @@ import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.VehicleEntity;
@@ -160,6 +161,9 @@ public class AltersIOHelper {
                 alter.getEnderChestInventory().setItem(i, enderChestInventoryListReadView.get(i));
             }
 
+            List<AttributeInstance.Packed> packedAttributes = Objects.requireNonNull(nbtReadView.listOrEmpty("PackedAttributes", AttributeInstance.Packed.CODEC).stream().toList());
+            alter.setAttributes(packedAttributes);
+
             alter.setLevel(player.level().getServer().getLevel(nbtReadView.read("World", ServerLevel.RESOURCE_KEY_CODEC).get()));
             alter.setPosition(nbtReadView.read("Position", Vec3.CODEC).get());
             alter.setRotation(nbtReadView.read("Rotation", Vec2.CODEC).get());
@@ -167,6 +171,7 @@ public class AltersIOHelper {
             alter.setRespawn(nbtReadView.read("Respawn", ServerPlayer.RespawnConfig.CODEC).orElse(null));
 
             alter.setHealth(nbtReadView.read("Health", Codec.FLOAT).get());
+            alter.setAbsorptionAmount(nbtReadView.read("AbsorptionAmount", Codec.FLOAT).get());
 
             alter.setExperienceLevel(nbtReadView.read("ExperienceLevel", Codec.INT).get());
             alter.setTotalExperience(nbtReadView.read("TotalExperience", Codec.INT).get());
@@ -201,6 +206,13 @@ public class AltersIOHelper {
             enderChestInventoryListAppender.add(enderChestInventory.getItem(i));
         }
 
+        List<AttributeInstance.Packed> packedAttributes = alter.getAttributes();
+        ValueOutput.TypedOutputList<AttributeInstance.Packed> packedAttributeOutputList = nbtWriteView.list("PackedAttributes", AttributeInstance.Packed.CODEC);
+        for (int i = 0; i < alter.getAttributes().size(); i++) {
+            packedAttributeOutputList.add(packedAttributes.get(i));
+        }
+
+
         nbtWriteView.store("World", ServerLevel.RESOURCE_KEY_CODEC, alter.getLevel().dimension());
         nbtWriteView.store("Position", Vec3.CODEC, alter.getPosition());
         nbtWriteView.store("Rotation", Vec2.CODEC, alter.getRotation());
@@ -210,6 +222,7 @@ public class AltersIOHelper {
         }
 
         nbtWriteView.store("Health", Codec.FLOAT, alter.getHealth());
+        nbtWriteView.store("AbsorptionAmount", Codec.FLOAT, alter.getAbsorptionAmount());
 
         nbtWriteView.store("ExperienceLevel", Codec.INT, alter.getExperienceLevel());
         nbtWriteView.store("TotalExperience", Codec.INT, alter.getTotalExperience());

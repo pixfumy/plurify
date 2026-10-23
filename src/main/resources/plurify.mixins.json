@@ -6,8 +6,8 @@
     "CommandManagerMixin",
     "KeepInventoryMixin",
     "PlayerAltersMixin",
+    "access.AttributeSupplierAccess",
     "access.HungerManagerAccess",
-    "access.PlayerEntityAccess",
     "access.TagValueOutputAccess"
   ],
   "injectors": {

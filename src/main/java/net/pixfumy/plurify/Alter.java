@@ -1,12 +1,17 @@
 package net.pixfumy.plurify;
 
+import com.google.common.collect.Maps;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.PlayerEnderChestContainer;
 import net.minecraft.world.item.ItemStack;
@@ -18,8 +23,10 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.pixfumy.plurify.gui.ChangeAlterIconGui;
+import net.pixfumy.plurify.mixin.access.AttributeSupplierAccess;
 import net.pixfumy.plurify.mixin.access.HungerManagerAccess;
 import net.pixfumy.plurify.mixin.access.TagValueOutputAccess;
+import org.apache.logging.log4j.core.jmx.Server;
 
 import java.util.*;
 
@@ -38,6 +45,12 @@ public class Alter {
     private ServerPlayer.RespawnConfig respawn;
 
     private float health = 20;
+    private float absorptionAmount;
+
+    private static final Map<Holder<Attribute>, AttributeInstance> SERVER_PLAYER_ATTRIBUTES = ((AttributeSupplierAccess) DefaultAttributes.getSupplier(EntityTypes.PLAYER)).getInstances();
+    private List<AttributeInstance.Packed> attributes;
+
+    private List<MobEffectInstance> activeEffects;
 
     private float experienceProgress = 0.0F;
     private int experienceLevel;
@@ -66,6 +79,8 @@ public class Alter {
         this.player = player;
         this.playerInventory = new Inventory(player, new EntityEquipment());
         this.enderChestInventory = new PlayerEnderChestContainer();
+        this.attributes = new AttributeMap(ServerPlayer.createAttributes().build()).pack();
+        this.activeEffects = new ArrayList<>();
 
         if (copyEntityDataFromPlayer) {
             setAlterEntityDataFromPlayer();
@@ -213,6 +228,30 @@ public class Alter {
         this.health = health;
     }
 
+    public float getAbsorptionAmount() {
+        return absorptionAmount;
+    }
+
+    public void setAbsorptionAmount(float absorptionAmount) {
+        this.absorptionAmount = absorptionAmount;
+    }
+
+    public List<AttributeInstance.Packed> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<AttributeInstance.Packed> attributes) {
+        this.attributes = attributes;
+    }
+
+    public List<MobEffectInstance> getActiveEffects() {
+        return activeEffects;
+    }
+
+    public void setActiveEffects(List<MobEffectInstance> activeEffects) {
+        this.activeEffects = activeEffects;
+    }
+
     public CompoundTag getVehicle() {
         return vehicle;
     }
@@ -258,6 +297,11 @@ public class Alter {
         this.respawn = player.getRespawnConfig();
 
         this.health = this.player.getHealth();
+        this.absorptionAmount = this.player.getAbsorptionAmount();
+
+        this.attributes = this.player.getAttributes().pack();
+
+        this.activeEffects = new ArrayList<>(this.player.getActiveEffects());
 
         this.experienceProgress = this.player.experienceProgress;
         this.experienceLevel = this.player.experienceLevel;
@@ -315,7 +359,16 @@ public class Alter {
 
         this.player.setRespawnPosition(this.respawn, false);
 
-        this.player.setHealth(this.getHealth());
+        this.player.setHealth(this.health);
+        this.player.setAbsorptionAmount(this.absorptionAmount);
+
+        SERVER_PLAYER_ATTRIBUTES.keySet().forEach(attributeHolder -> {
+            this.player.getAttributes().resetBaseValue(attributeHolder);
+        });
+        this.player.getAttributes().apply(this.attributes);
+
+        this.player.removeAllEffects();
+        this.activeEffects.forEach(mobEffectInstance -> this.player.addEffect(mobEffectInstance));
 
         this.player.experienceProgress = this.getExperienceProgress();
         this.player.experienceLevel = this.getExperienceLevel();
