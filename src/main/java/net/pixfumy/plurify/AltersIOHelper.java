@@ -78,7 +78,7 @@ public class AltersIOHelper {
                     readPlayerAlterEntityDataFromFile(player, alter);
 
                     if (currentAlterUuid.equals(alterUuidAsString)) {
-                        ((IAltersOwner)player).plurify$setCurrentAlter(alter);
+                        ((IAltersOwner)player).plurify$switchToAlter(alter);
                     }
                 }
 

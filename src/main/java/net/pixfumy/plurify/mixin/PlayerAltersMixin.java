@@ -69,12 +69,24 @@ public abstract class PlayerAltersMixin extends Player implements IAltersOwner {
         this.alters.remove(alter.getUuid());
     }
 
+    /**
+     * Switches to the specified Alter. There are two cases:
+     *
+     * Case 1: World load - currentAlter is null, switch directly to the currentAlter defined in the config file.
+     *         This accounts for switching worlds after switching alters on a different world - you should be automatically
+     *         switched to the alter you selected on the previous world.
+     *
+       Case 2: In-game switching - currentAlter is the previous alter, so we need to sync its entity data to the player's
+                current state before switching.
+     */
     @Override
     public void plurify$switchToAlter(Alter alter) {
         ServerPlayer thisPlayer = (ServerPlayer) (Object) this;
 
-        // save current alter data
-        plurify$getCurrentAlter().setAlterEntityDataFromPlayer();
+        // Case 2 only
+        if (plurify$getCurrentAlter() != null) {
+            plurify$getCurrentAlter().setAlterEntityDataFromPlayer();
+        }
 
         // set the currentAlter to the new alter and set the player data
         this.plurify$setCurrentAlter(alter);
