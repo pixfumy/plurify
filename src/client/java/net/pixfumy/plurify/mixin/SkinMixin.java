@@ -40,12 +40,12 @@ public abstract class SkinMixin implements ISkinOwner {
         }
 
         this.skinTextureAsNativeImage = nativeImage.mappedCopy(i -> i);
+        this.playerSkinType = SkinsIOHelper.determinePlayerSkinType(skinTextureAsNativeImage);
 
         // remaps 32 x 64 image to 64 x 64, and fills in the unused spaces with black pixels
         PlayerSkinTextureDownloaderAccess.invokeProcessLegacySkin(skinTextureAsNativeImage, this.alterId);
 
         this.alterId = alterUuid;
-        this.playerSkinType = SkinsIOHelper.determinePlayerSkinType(skinTextureAsNativeImage);
 
         DynamicTexture nativeImageBackedTexture = new DynamicTexture(() -> this.alterId, skinTextureAsNativeImage);
         Minecraft.getInstance().getTextureManager().register(Identifier.fromNamespaceAndPath("plurify", this.alterId), nativeImageBackedTexture);

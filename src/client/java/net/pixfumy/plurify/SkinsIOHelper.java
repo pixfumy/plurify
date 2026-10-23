@@ -41,8 +41,8 @@ public class SkinsIOHelper {
      * Sample the player's arm (a la blood test) to determine if it's wide or slim
      */
     public static PlayerModelType determinePlayerSkinType(NativeImage skinAsNativeImage) {
-        int armSample = skinAsNativeImage.getPixel(55, 20);
-        if (armSample == CommonColors.BLACK) {
+        int armSample = (skinAsNativeImage.getPixel(55, 22) >> 24) & 0xFF;
+        if (armSample == 0) {
             return PlayerModelType.SLIM;
         } else {
             return PlayerModelType.WIDE;
