@@ -1,4 +1,4 @@
-package net.pixfumy.plurify.mixin;
+package net.pixfumy.plurify.mixin.alter;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -8,11 +8,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gamerules.GameRules;
-import net.pixfumy.plurify.IAltersOwner;
+import net.pixfumy.plurify.alter.IAltersOwner;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-
-import java.util.Random;
 
 @Mixin(ServerPlayer.class)
 public abstract class KeepInventoryMixin extends Player {

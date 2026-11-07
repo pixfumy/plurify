@@ -1,9 +1,9 @@
-package net.pixfumy.plurify.mixin;
+package net.pixfumy.plurify.mixin.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.pixfumy.plurify.AltersCommand;
+import net.pixfumy.plurify.command.AltersCommand;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

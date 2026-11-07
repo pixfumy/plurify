@@ -3,9 +3,8 @@ package net.pixfumy.plurify.gui;
 import eu.pb4.sgui.api.gui.SignGui;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.server.level.ServerPlayer;
-import net.pixfumy.plurify.Alter;
-import net.pixfumy.plurify.AltersIOHelper;
-import net.pixfumy.plurify.IAltersOwner;
+import net.pixfumy.plurify.alter.Alter;
+import net.pixfumy.plurify.alter.IAltersOwner;
 
 public class NameAlterGui extends SignGui {
     private final Alter alter;

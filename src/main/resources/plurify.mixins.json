@@ -3,12 +3,13 @@
   "package": "net.pixfumy.plurify.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "CommandManagerMixin",
-    "KeepInventoryMixin",
-    "PlayerAltersMixin",
+    "alter.KeepInventoryMixin",
+    "alter.PlayerAltersMixin",
     "access.AttributeSupplierAccess",
     "access.HungerManagerAccess",
-    "access.TagValueOutputAccess"
+    "access.PlayerAdvancementsAccess",
+    "advancement.PlayerAdvancementsMixin",
+    "command.CommandManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

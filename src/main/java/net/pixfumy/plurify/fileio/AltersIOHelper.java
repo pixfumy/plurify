@@ -1,28 +1,22 @@
-package net.pixfumy.plurify;
+package net.pixfumy.plurify.fileio;
 
 import com.google.gson.*;
 import com.mojang.serialization.Codec;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.core.GlobalPos;
-import net.minecraft.core.UUIDUtil;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.VehicleEntity;
 import net.minecraft.world.inventory.PlayerEnderChestContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
@@ -30,6 +24,10 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import net.pixfumy.plurify.PlurifyMain;
+import net.pixfumy.plurify.advancement.AdvancementUtil;
+import net.pixfumy.plurify.alter.Alter;
+import net.pixfumy.plurify.alter.IAltersOwner;
 import net.pixfumy.plurify.gui.icon.PlurifyIcon;
 import net.pixfumy.plurify.gui.icon.PlurifyIconUtil;
 
@@ -77,6 +75,7 @@ public class AltersIOHelper {
 
                     alters.put(alterUuid, alter);
                     readPlayerAlterEntityDataFromFile(player, alter);
+                    readPlayerAlterAdvancementsFromFile(player, alter);
 
                     if (currentAlterUuid.equals(alterUuidAsString)) {
                         ((IAltersOwner)player).plurify$switchToAlter(alter);
@@ -124,6 +123,7 @@ public class AltersIOHelper {
 
             alterJsons.add(alterJson);
             writePlayerAlterEntityDataToFile(player, alter);
+            writePlayerAlterAdvancementsToFile(player, alter);
         }
 
         playerJson.add("alters", alterJsons);
@@ -142,7 +142,7 @@ public class AltersIOHelper {
     }
 
     private static void readPlayerAlterEntityDataFromFile(ServerPlayer player, Alter alter) {
-        Path entityDataFile = getPlurifyWorldPlayerAlterFile(player, alter);
+        Path entityDataFile = getPlurifyWorldPlayerAlterDataFile(player, alter);
         if (!entityDataFile.toFile().exists()) {
             return;
         }
@@ -163,6 +163,9 @@ public class AltersIOHelper {
 
             List<AttributeInstance.Packed> packedAttributes = Objects.requireNonNull(nbtReadView.listOrEmpty("PackedAttributes", AttributeInstance.Packed.CODEC).stream().toList());
             alter.setAttributes(packedAttributes);
+
+            List<MobEffectInstance> activeEffects = Objects.requireNonNull(nbtReadView.listOrEmpty("ActiveEffects", MobEffectInstance.CODEC).stream().toList());
+            alter.setActiveEffects(activeEffects);
 
             alter.setLevel(player.level().getServer().getLevel(nbtReadView.read("World", ServerLevel.RESOURCE_KEY_CODEC).get()));
             alter.setPosition(nbtReadView.read("Position", Vec3.CODEC).get());
@@ -208,10 +211,15 @@ public class AltersIOHelper {
 
         List<AttributeInstance.Packed> packedAttributes = alter.getAttributes();
         ValueOutput.TypedOutputList<AttributeInstance.Packed> packedAttributeOutputList = nbtWriteView.list("PackedAttributes", AttributeInstance.Packed.CODEC);
-        for (int i = 0; i < alter.getAttributes().size(); i++) {
+        for (int i = 0; i < packedAttributes.size(); i++) {
             packedAttributeOutputList.add(packedAttributes.get(i));
         }
 
+        List<MobEffectInstance> activeEffects = alter.getActiveEffects();
+        ValueOutput.TypedOutputList<MobEffectInstance> activeEffectsOutputList = nbtWriteView.list("ActiveEffects", MobEffectInstance.CODEC);
+        for (int i = 0; i < activeEffects.size(); i++) {
+            activeEffectsOutputList.add(activeEffects.get(i));
+        }
 
         nbtWriteView.store("World", ServerLevel.RESOURCE_KEY_CODEC, alter.getLevel().dimension());
         nbtWriteView.store("Position", Vec3.CODEC, alter.getPosition());
@@ -239,11 +247,38 @@ public class AltersIOHelper {
             nbtWriteView.store("Vehicle", CompoundTag.CODEC, vehicle);
         }
 
-        Path entityDataFile = getPlurifyWorldPlayerAlterFile(player, alter);
+        Path entityDataFile = getPlurifyWorldPlayerAlterDataFile(player, alter);
         try {
             NbtIo.write(nbtWriteView.buildResult(), entityDataFile);
         } catch (IOException e) {
             PlurifyMain.LOGGER.error("Error writing entity data file " + entityDataFile);
+        }
+    }
+
+    private static void readPlayerAlterAdvancementsFromFile(ServerPlayer player, Alter alter) {
+        File alterAdvancementsFile = getPlurifyWorldPlayerAlterAdvancementsFile(player, alter).toFile();
+        try {
+            if (alterAdvancementsFile.exists()) {
+                JsonObject alterAdvancementsJson = (JsonObject) JsonParser.parseReader(new FileReader(alterAdvancementsFile));
+                PlayerAdvancements.Data playerAdvancementsData = AdvancementUtil.decodeAdvancementsFromJson(alterAdvancementsJson);
+                alter.setAdvancements(playerAdvancementsData);
+            }
+        } catch (FileNotFoundException e) {
+            PlurifyMain.LOGGER.error("Error reading alter advancements file " + alterAdvancementsFile.getName());
+        }
+    }
+
+    private static void writePlayerAlterAdvancementsToFile(ServerPlayer player, Alter alter) {
+        JsonElement alterAdvancementsJson = AdvancementUtil.encodeAdvancementsToJson(alter.getAdvancements());
+        File alterAdvancementsFile = null;
+        try {
+            alterAdvancementsFile = getPlurifyWorldPlayerAlterAdvancementsFile(player, alter).toFile();
+
+            Writer output = new BufferedWriter(new FileWriter(alterAdvancementsFile));
+            output.write(alterAdvancementsJson.toString());
+            output.close();
+        } catch (IOException e) {
+            PlurifyMain.LOGGER.error("Error writing alter advancements file " + alterAdvancementsFile.getName());
         }
     }
 
@@ -294,9 +329,15 @@ public class AltersIOHelper {
     /**
      * World-specific file containing NBT data for a single alter for a single player
      */
-    private static Path getPlurifyWorldPlayerAlterFile(Player player, Alter alter) {
+    private static Path getPlurifyWorldPlayerAlterDataFile(Player player, Alter alter) {
         Path plurifyWorldPlayerDir = getPlurifyWorldPlayerDir(player);
         plurifyWorldPlayerDir.toFile().mkdir();
         return plurifyWorldPlayerDir.resolve(alter.getUuid() + "-" + "entitydata.nbt");
+    }
+
+    private static Path getPlurifyWorldPlayerAlterAdvancementsFile(Player player, Alter alter) {
+        Path plurifyWorldPlayerDir = getPlurifyWorldPlayerDir(player);
+        plurifyWorldPlayerDir.toFile().mkdir();
+        return plurifyWorldPlayerDir.resolve(alter.getUuid() + "-" + "advancements.json");
     }
 }

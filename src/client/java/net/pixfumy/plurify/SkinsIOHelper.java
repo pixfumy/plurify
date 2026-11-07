@@ -1,12 +1,12 @@
 package net.pixfumy.plurify;
 
+import net.pixfumy.plurify.fileio.AltersIOHelper;
 import org.apache.commons.io.FileUtils;
 import com.mojang.blaze3d.platform.NativeImage;
 import java.io.*;
 import java.nio.file.Path;
 
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.util.CommonColors;
 import net.minecraft.world.entity.player.PlayerModelType;
 
 public class SkinsIOHelper {

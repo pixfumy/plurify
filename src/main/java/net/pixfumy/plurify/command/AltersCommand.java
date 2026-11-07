@@ -1,4 +1,4 @@
-package net.pixfumy.plurify;
+package net.pixfumy.plurify.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;

@@ -1,7 +1,6 @@
-package net.pixfumy.plurify;
+package net.pixfumy.plurify.alter;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 public interface IAltersOwner {

@@ -1,14 +1,17 @@
-package net.pixfumy.plurify;
+package net.pixfumy.plurify.alter;
 
-import com.google.common.collect.Maps;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.*;
@@ -22,13 +25,17 @@ import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import net.pixfumy.plurify.PlurifyMain;
+import net.pixfumy.plurify.advancement.AdvancementUtil;
+import net.pixfumy.plurify.advancement.IAdvancementsOwner;
 import net.pixfumy.plurify.gui.ChangeAlterIconGui;
 import net.pixfumy.plurify.mixin.access.AttributeSupplierAccess;
 import net.pixfumy.plurify.mixin.access.HungerManagerAccess;
-import net.pixfumy.plurify.mixin.access.TagValueOutputAccess;
-import org.apache.logging.log4j.core.jmx.Server;
+import net.pixfumy.plurify.mixin.access.PlayerAdvancementsAccess;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class Alter {
     private UUID uuid;
@@ -51,6 +58,9 @@ public class Alter {
     private List<AttributeInstance.Packed> attributes;
 
     private List<MobEffectInstance> activeEffects;
+
+    private final Map<Identifier, AdvancementHolder> allAdvancementHolders;
+    private PlayerAdvancements.Data advancements;
 
     private float experienceProgress = 0.0F;
     private int experienceLevel;
@@ -81,17 +91,24 @@ public class Alter {
         this.enderChestInventory = new PlayerEnderChestContainer();
         this.attributes = new AttributeMap(ServerPlayer.createAttributes().build()).pack();
         this.activeEffects = new ArrayList<>();
+        this.allAdvancementHolders = this.player.level().getServer().getAdvancements().getAllAdvancements().stream().collect(
+                Collectors.toMap(AdvancementHolder::id, Function.identity())
+        );
+        this.advancements = new PlayerAdvancements.Data(Map.of());
+
+        MinecraftServer server = player.level().getServer();
 
         if (copyEntityDataFromPlayer) {
             setAlterEntityDataFromPlayer();
-            this.keepInventory = player.level().getGameRules().get(GameRules.KEEP_INVENTORY);
+            this.keepInventory = server.getGameRules().get(GameRules.KEEP_INVENTORY);
         } else {
-            this.level = player.level().getServer().overworld();
+            this.level = server.overworld();
             BlockPos spawnPoint = BlockPos.containing(TeleportTransition.createDefault(player, TeleportTransition.DO_NOTHING).position());
             this.position = new Vec3(spawnPoint.getX(), spawnPoint.getY(), spawnPoint.getZ());
             this.rotation = new Vec2(0, 0);
         }
 
+        // Initialized here in case player is new or Alter is new - otherwise icon gets overwritten from the json file in AltersIOHelper
         this.icon = ChangeAlterIconGui.ITEMS_FOR_ICONS.get(new Random().nextInt(ChangeAlterIconGui.ITEMS_FOR_ICONS.size()));
     }
 
@@ -252,6 +269,14 @@ public class Alter {
         this.activeEffects = activeEffects;
     }
 
+    public PlayerAdvancements.Data getAdvancements() {
+        return advancements;
+    }
+
+    public void setAdvancements(PlayerAdvancements.Data advancements) {
+        this.advancements = advancements;
+    }
+
     public CompoundTag getVehicle() {
         return vehicle;
     }
@@ -317,7 +342,7 @@ public class Alter {
         Entity rootVehicle = player.getRootVehicle();
         if (vehicle != null) {
             rootVehicle.save(vehicleTagValueOutput);
-            this.vehicle = ((TagValueOutputAccess) vehicleTagValueOutput).getOutput();
+            this.vehicle = vehicleTagValueOutput.buildResult();
         }
     }
 
@@ -378,5 +403,36 @@ public class Alter {
         this.player.getFoodData().setSaturation(this.getSaturationLevel());
         ((HungerManagerAccess) this.player.getFoodData()).setExhaustionLevel(this.getExhaustion());
         ((HungerManagerAccess) this.player.getFoodData()).setTickTimer(this.getFoodTickTimer());
+    }
+
+    public void setAlterAdvancementsFromPlayer() {
+        this.advancements = AdvancementUtil.deepCopyAdvancementsData(((PlayerAdvancementsAccess) player.getAdvancements()).invokeAsData());
+    }
+
+    public void setPlayerAdvancementsFromAlter() {
+        PlayerAdvancements playerAdvancements = player.getAdvancements();
+
+        for (AdvancementHolder advancementHolder : this.allAdvancementHolders.values()) {
+            AdvancementProgress progress = playerAdvancements.getOrStartProgress(advancementHolder);
+            if (!progress.hasProgress()) {
+                continue;
+            }
+            for (String criterion : progress.getCompletedCriteria()) {
+                playerAdvancements.revoke(advancementHolder, criterion);
+            }
+        }
+
+        for (Map.Entry<Identifier, AdvancementProgress> mapEntry : this.advancements.map().entrySet()) {
+            AdvancementHolder advancementHolder = this.allAdvancementHolders.get(mapEntry.getKey());
+            AdvancementProgress progress = mapEntry.getValue();
+            if (progress.isDone()) {
+                continue;
+            }
+            for (String criterion : progress.getCompletedCriteria()) {
+                ((IAdvancementsOwner) playerAdvancements).plurify$awardAdvancementSilently(advancementHolder, criterion);
+            }
+        }
+
+        this.player.getAdvancements().flushDirty(player, false);
     }
 }

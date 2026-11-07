@@ -3,21 +3,16 @@ package net.pixfumy.plurify.gui;
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.elements.SimpleGuiElement;
-import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
-import net.pixfumy.plurify.Alter;
-import net.pixfumy.plurify.AltersIOHelper;
-import net.pixfumy.plurify.IAltersOwner;
+import net.pixfumy.plurify.alter.Alter;
+import net.pixfumy.plurify.alter.IAltersOwner;
 import net.pixfumy.plurify.gui.icon.PlurifyIcon;
-import net.pixfumy.plurify.gui.icon.PlurifyIconUtil;
 
 import java.util.*;
 

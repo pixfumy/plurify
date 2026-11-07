@@ -1,4 +1,4 @@
-package net.pixfumy.plurify.mixin;
+package net.pixfumy.plurify.mixin.alter;
 
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -6,9 +6,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.pixfumy.plurify.AltersIOHelper;
-import net.pixfumy.plurify.IAltersOwner;
-import net.pixfumy.plurify.Alter;
+import net.pixfumy.plurify.fileio.AltersIOHelper;
+import net.pixfumy.plurify.alter.IAltersOwner;
+import net.pixfumy.plurify.alter.Alter;
 import net.pixfumy.plurify.networking.PlayerSwitchAlterS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -86,11 +86,13 @@ public abstract class PlayerAltersMixin extends Player implements IAltersOwner {
         // Case 2 only
         if (plurify$getCurrentAlter() != null) {
             plurify$getCurrentAlter().setAlterEntityDataFromPlayer();
+            plurify$getCurrentAlter().setAlterAdvancementsFromPlayer();
         }
 
         // set the currentAlter to the new alter and set the player data
         this.plurify$setCurrentAlter(alter);
         alter.setPlayerEntityDataFromAlter();
+        alter.setPlayerAdvancementsFromAlter();
 
         ServerPlayNetworking.send(thisPlayer,
                 new PlayerSwitchAlterS2CPacket(currentAlter.getUuid().toString(), currentAlter.getName().getString()));

@@ -1,11 +1,10 @@
 package net.pixfumy.plurify.gui;
 
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.pixfumy.plurify.Alter;
+import net.pixfumy.plurify.alter.Alter;
 import net.pixfumy.plurify.gui.icon.PlurifyIconUtil;
 
 public class ViewEnderChestGui extends PlurifyChestGui {
