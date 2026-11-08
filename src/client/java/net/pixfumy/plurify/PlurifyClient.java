@@ -29,10 +29,10 @@ public class PlurifyClient implements ClientModInitializer {
 
 		KeyMapping plurifyOpenAltersKey = KeyMappingHelper.registerKeyMapping(
 				new KeyMapping("key." + PlurifyMain.MOD_ID + ".open_alters_menu",
-						InputConstants.Type.KEYSYM,
+						InputConstants.Type.KEYBOARD,
 						InputConstants.KEY_K,
 						CATEGORY
-						));
+				));
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (plurifyOpenAltersKey.isDown()) {
