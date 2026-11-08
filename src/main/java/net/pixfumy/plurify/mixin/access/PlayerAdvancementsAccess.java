@@ -17,29 +17,5 @@ import java.util.Set;
 @Mixin(PlayerAdvancements.class)
 public interface PlayerAdvancementsAccess {
     @Invoker
-    void invokeApplyFrom(final ServerAdvancementManager manager, final PlayerAdvancements.Data data);
-
-    @Invoker
     PlayerAdvancements.Data invokeAsData();
-
-    @Invoker
-    void invokeClearTriggers();
-
-    @Accessor
-    Map<AdvancementHolder, AdvancementProgress> getProgress();
-
-    @Accessor
-    Set<AdvancementHolder> getVisible();
-
-    @Accessor
-    Set<AdvancementHolder> getProgressChanged();
-
-    @Accessor
-    Set<AdvancementNode> getRootsToUpdate();
-
-    @Accessor
-    void setLastSelectedTab(@Nullable AdvancementHolder holder);
-
-    @Accessor
-    void setIsFirstPacket(boolean isFirstPacket);
 }

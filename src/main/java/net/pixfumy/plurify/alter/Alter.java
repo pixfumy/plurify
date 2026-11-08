@@ -1,9 +1,15 @@
 package net.pixfumy.plurify.alter;
 
+import com.google.gson.JsonElement;
+import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -11,11 +17,15 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.ServerStatsCounter;
+import net.minecraft.stats.Stat;
+import net.minecraft.stats.StatType;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.PlayerEnderChestContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.gamerules.GameRules;
@@ -32,6 +42,7 @@ import net.pixfumy.plurify.gui.ChangeAlterIconGui;
 import net.pixfumy.plurify.mixin.access.AttributeSupplierAccess;
 import net.pixfumy.plurify.mixin.access.HungerManagerAccess;
 import net.pixfumy.plurify.mixin.access.PlayerAdvancementsAccess;
+import net.pixfumy.plurify.mixin.access.StatsCounterAccess;
 
 import java.util.*;
 import java.util.function.Function;
@@ -61,6 +72,8 @@ public class Alter {
 
     private final Map<Identifier, AdvancementHolder> allAdvancementHolders;
     private PlayerAdvancements.Data advancements;
+
+    private Map<Stat<?>, Integer> stats;
 
     private float experienceProgress = 0.0F;
     private int experienceLevel;
@@ -94,7 +107,8 @@ public class Alter {
         this.allAdvancementHolders = this.player.level().getServer().getAdvancements().getAllAdvancements().stream().collect(
                 Collectors.toMap(AdvancementHolder::id, Function.identity())
         );
-        this.advancements = new PlayerAdvancements.Data(Map.of());
+        this.advancements = new PlayerAdvancements.Data(new HashMap<>());
+        this.stats = new HashMap<>();
 
         MinecraftServer server = player.level().getServer();
 
@@ -108,7 +122,7 @@ public class Alter {
             this.rotation = new Vec2(0, 0);
         }
 
-        // Initialized here in case player is new or Alter is new - otherwise icon gets overwritten from the json file in AltersIOHelper
+        // Initialized here in case player is new or Alter is new - if not icon gets overwritten from the json file in AltersIOHelper
         this.icon = ChangeAlterIconGui.ITEMS_FOR_ICONS.get(new Random().nextInt(ChangeAlterIconGui.ITEMS_FOR_ICONS.size()));
     }
 
@@ -277,6 +291,14 @@ public class Alter {
         this.advancements = advancements;
     }
 
+    public Map<Stat<?>, Integer> getStats() {
+        return stats;
+    }
+
+    public void setStats(Map<Stat<?>, Integer> stats) {
+        this.stats = stats;
+    }
+
     public CompoundTag getVehicle() {
         return vehicle;
     }
@@ -435,4 +457,19 @@ public class Alter {
 
         this.player.getAdvancements().flushDirty(player, false);
     }
+
+    public void setAlterStatsFromPlayer() {
+        this.stats.clear();
+        this.stats.putAll((((StatsCounterAccess)player.getStats()).getStats()));
+    }
+
+    public void setPlayerStatsFromAlter() {
+        Object2IntMap<Stat<?>> playerStats = (((StatsCounterAccess)player.getStats()).getStats());
+        playerStats.forEach(((stat, count) -> player.resetStat(stat)));
+
+        this.stats.forEach((stat, count) -> {
+            player.awardStat(stat, count);
+        });
+    }
 }
+

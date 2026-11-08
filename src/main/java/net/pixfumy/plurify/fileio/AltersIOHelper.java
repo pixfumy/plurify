@@ -2,6 +2,7 @@ package net.pixfumy.plurify.fileio;
 
 import com.google.gson.*;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
@@ -10,6 +11,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stat;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -30,6 +32,7 @@ import net.pixfumy.plurify.alter.Alter;
 import net.pixfumy.plurify.alter.IAltersOwner;
 import net.pixfumy.plurify.gui.icon.PlurifyIcon;
 import net.pixfumy.plurify.gui.icon.PlurifyIconUtil;
+import net.pixfumy.plurify.mixin.access.ServerStatsCounterAccess;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -76,6 +79,7 @@ public class AltersIOHelper {
                     alters.put(alterUuid, alter);
                     readPlayerAlterEntityDataFromFile(player, alter);
                     readPlayerAlterAdvancementsFromFile(player, alter);
+                    readPlayerAlterStatsFromFile(player, alter);
 
                     if (currentAlterUuid.equals(alterUuidAsString)) {
                         ((IAltersOwner)player).plurify$switchToAlter(alter);
@@ -124,6 +128,7 @@ public class AltersIOHelper {
             alterJsons.add(alterJson);
             writePlayerAlterEntityDataToFile(player, alter);
             writePlayerAlterAdvancementsToFile(player, alter);
+            writePlayerAlterStatsToFile(player, alter);
         }
 
         playerJson.add("alters", alterJsons);
@@ -282,6 +287,33 @@ public class AltersIOHelper {
         }
     }
 
+    private static void readPlayerAlterStatsFromFile(ServerPlayer player, Alter alter) {
+        File alterStatsFile = getPlurifyWorldPlayerAlterStatsFile(player, alter).toFile();
+        try {
+            if (alterStatsFile.exists()) {
+                JsonObject alterStatsJson = (JsonObject) JsonParser.parseReader(new FileReader(alterStatsFile));
+                Map<Stat<?>, Integer> serverStatsCounter = ServerStatsCounterAccess.getSTATS_CODEC().decode(JsonOps.INSTANCE, alterStatsJson).getOrThrow().getFirst();
+                alter.setStats(serverStatsCounter);
+            }
+        } catch (FileNotFoundException e) {
+            PlurifyMain.LOGGER.error("Error reading alter stats file " + alterStatsFile.getName());
+        }
+    }
+
+    private static void writePlayerAlterStatsToFile(ServerPlayer player, Alter alter) {
+        JsonElement alterStatsJson = ServerStatsCounterAccess.getSTATS_CODEC().encodeStart(JsonOps.INSTANCE, alter.getStats()).getOrThrow();
+        File alterStatsFile = null;
+        try {
+            alterStatsFile = getPlurifyWorldPlayerAlterStatsFile(player, alter).toFile();
+
+            Writer output = new BufferedWriter(new FileWriter(alterStatsFile));
+            output.write(alterStatsJson.toString());
+            output.close();
+        } catch (IOException e) {
+            PlurifyMain.LOGGER.error("Error writing alter stats file " + alterStatsFile.getName());
+        }
+    }
+
     /**
      * Config file containing the instance-wide metadata for all players. Metadata
      * consists of alter names, icons, and (client only) skin files.
@@ -339,5 +371,11 @@ public class AltersIOHelper {
         Path plurifyWorldPlayerDir = getPlurifyWorldPlayerDir(player);
         plurifyWorldPlayerDir.toFile().mkdir();
         return plurifyWorldPlayerDir.resolve(alter.getUuid() + "-" + "advancements.json");
+    }
+
+    private static Path getPlurifyWorldPlayerAlterStatsFile(Player player, Alter alter) {
+        Path plurifyWorldPlayerDir = getPlurifyWorldPlayerDir(player);
+        plurifyWorldPlayerDir.toFile().mkdir();
+        return plurifyWorldPlayerDir.resolve(alter.getUuid() + "-" + "stats.json");
     }
 }

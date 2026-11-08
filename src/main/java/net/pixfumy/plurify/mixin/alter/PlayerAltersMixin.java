@@ -87,12 +87,14 @@ public abstract class PlayerAltersMixin extends Player implements IAltersOwner {
         if (plurify$getCurrentAlter() != null) {
             plurify$getCurrentAlter().setAlterEntityDataFromPlayer();
             plurify$getCurrentAlter().setAlterAdvancementsFromPlayer();
+            plurify$getCurrentAlter().setAlterStatsFromPlayer();
         }
 
         // set the currentAlter to the new alter and set the player data
         this.plurify$setCurrentAlter(alter);
         alter.setPlayerEntityDataFromAlter();
         alter.setPlayerAdvancementsFromAlter();
+        alter.setPlayerStatsFromAlter();
 
         ServerPlayNetworking.send(thisPlayer,
                 new PlayerSwitchAlterS2CPacket(currentAlter.getUuid().toString(), currentAlter.getName().getString()));
@@ -122,6 +124,8 @@ public abstract class PlayerAltersMixin extends Player implements IAltersOwner {
         ServerPlayer thisPlayer = (ServerPlayer) (Object) this;
         Alter currentAlter = plurify$getCurrentAlter();
         currentAlter.setAlterEntityDataFromPlayer();
+        currentAlter.setAlterAdvancementsFromPlayer();
+        currentAlter.setAlterStatsFromPlayer();
 
         AltersIOHelper.writePlayerAltersToFile(thisPlayer);
     }
