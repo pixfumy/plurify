@@ -28,6 +28,7 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	implementation include("eu.pb4:sgui:2.2.1+26.3")
+	implementation include("eu.pb4:polymer-resource-pack:0.18.7+26.3")
 
 	Set<String> fabricApiModules = [
 			'fabric-api-base',

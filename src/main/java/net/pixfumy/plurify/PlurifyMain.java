@@ -1,10 +1,13 @@
 package net.pixfumy.plurify;
 
+import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.level.ServerPlayer;
 import net.pixfumy.plurify.alter.Alter;
 import net.pixfumy.plurify.alter.IAltersOwner;
@@ -27,7 +30,9 @@ public class PlurifyMain implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		LOGGER.info("Plurify successfully loaded.");
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
+			PolymerResourcePackUtils.addModAssets(MOD_ID);
+		}
 
 		PayloadTypeRegistry.clientboundPlay().register(OpenAlterSkinScreenS2CPayload.ID, OpenAlterSkinScreenS2CPayload.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(PlayerSwitchAlterS2CPacket.ID, PlayerSwitchAlterS2CPacket.CODEC);
@@ -59,6 +64,8 @@ public class PlurifyMain implements ModInitializer {
 
 			new AlterDetailsGui(player, selectedAlter, new MainAltersGui(player)).open();
 		}));
+
+		LOGGER.info("Plurify successfully loaded.");
 	}
 
 }
