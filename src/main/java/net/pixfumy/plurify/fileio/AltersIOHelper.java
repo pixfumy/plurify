@@ -189,7 +189,7 @@ public class AltersIOHelper {
             alter.setExhaustion(nbtReadView.read("ExperienceLevel", Codec.FLOAT).get());
             alter.setFoodTickTimer(nbtReadView.read("FoodTickTimer", Codec.INT).get());
 
-            alter.setVehicle(nbtReadView.read("Vehicle", CompoundTag.CODEC).get());
+            alter.setVehicle(nbtReadView.read("Vehicle", CompoundTag.CODEC).orElse(null));
 
 
             alter.setKeepInventory(nbtReadView.read("KeepInventory", Codec.BOOL).get());
