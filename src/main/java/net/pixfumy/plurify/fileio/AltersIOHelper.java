@@ -29,14 +29,18 @@ import net.minecraft.world.phys.Vec3;
 import net.pixfumy.plurify.PlurifyMain;
 import net.pixfumy.plurify.advancement.AdvancementUtil;
 import net.pixfumy.plurify.alter.Alter;
+import net.pixfumy.plurify.alter.AlterBasicDetail;
 import net.pixfumy.plurify.alter.IAltersOwner;
+import net.pixfumy.plurify.alter.PlayerAltersConfig;
 import net.pixfumy.plurify.gui.icon.PlurifyIcon;
 import net.pixfumy.plurify.gui.icon.PlurifyIconUtil;
 import net.pixfumy.plurify.mixin.access.ServerStatsCounterAccess;
+import org.jspecify.annotations.Nullable;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.logging.Logger;
 
 public class AltersIOHelper {
     private static final String MOD_DIR = PlurifyMain.MOD_ID;
@@ -315,6 +319,75 @@ public class AltersIOHelper {
     }
 
     /**
+     * Used to combine the given PlayerAltersConfig into the existing alter_data.json file. This method
+     * is used both for syncing singleplayer -> multiplayer and multiplayer -> singleplayer
+     */
+    public static void syncNewAltersToJsonFile(PlayerAltersConfig newPlayerAltersConfig) {
+        PlurifyMain.LOGGER.info("syncing new alters to json");
+        try {
+            PlayerAltersConfig combinedPlayerAltersConfig = combineNewAltersToExistingPlayer(newPlayerAltersConfig);
+            File playerFile = getPlayerAltersConfigFile(newPlayerAltersConfig.playerUuid()).toFile();
+            Writer output = new BufferedWriter(new FileWriter(playerFile));
+
+            JsonObject altersJson = (JsonObject) PlayerAltersConfig.CODEC.encodeStart(JsonOps.INSTANCE, combinedPlayerAltersConfig).getOrThrow();
+            output.write(altersJson.toString());
+            output.close();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static PlayerAltersConfig combineNewAltersToExistingPlayer(PlayerAltersConfig newPlayerAltersConfig) {
+        List<AlterBasicDetail> combinedAlters = new ArrayList<>();
+
+        PlayerAltersConfig oldPlayerAltersConfig = getPlayerAltersConfig(newPlayerAltersConfig.playerUuid());
+        if (oldPlayerAltersConfig != null) {
+            combinedAlters.addAll(oldPlayerAltersConfig.alters());
+        }
+
+        for (AlterBasicDetail newAlter : newPlayerAltersConfig.alters()) {
+            AlterBasicDetail matchingOldAlter = (combinedAlters.stream().filter(
+                    oldAlter -> oldAlter.uuid().equals(newAlter.uuid()))).findFirst().orElse(null);
+
+            if (matchingOldAlter != null) {
+                combinedAlters.remove(matchingOldAlter);
+            }
+
+            combinedAlters.add(newAlter);
+        }
+
+        PlayerAltersConfig combinedPlayerAltersConfig = new PlayerAltersConfig(
+                newPlayerAltersConfig.playerUuid(),
+                newPlayerAltersConfig.inGameName(),
+                newPlayerAltersConfig.currentAlterUuid(),
+                combinedAlters
+        );
+
+        return combinedPlayerAltersConfig;
+    }
+
+    public static @Nullable PlayerAltersConfig getPlayerAltersConfig(UUID playerUUID) {
+        File playerFile = getPlayerAltersConfigFile(playerUUID).toFile();
+        try {
+            if (!playerFile.exists()) {
+                return null;
+            }
+            JsonObject altersJson = (JsonObject) JsonParser.parseReader(new FileReader(playerFile));
+            PlayerAltersConfig playerAltersConfig = PlayerAltersConfig.CODEC.decode(JsonOps.INSTANCE, altersJson).getOrThrow().getFirst();
+            return playerAltersConfig;
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static PlayerAltersConfig getPlayerAltersConfig(Player player) {
+        return getPlayerAltersConfig(player.getUUID());
+    }
+
+    // ---- HELPER METHODS FOR NAVIGATINGTO PLAYER/ALTER FILES ----
+
+    /**
      * Config file containing the instance-wide metadata for all players. Metadata
      * consists of alter names, icons, and (client only) skin files.
      */
@@ -327,9 +400,23 @@ public class AltersIOHelper {
      * and (client only) skin files.
      */
     public static Path getPlayerConfigDir(Player player) {
+        return getPlayerConfigDir(player.getUUID());
+    }
+
+    /**
+     * Config directory for metadata for a specific player. Metadata consists of alter names, icons,
+     * and (client only) skin files.
+     */
+    public static Path getPlayerConfigDir(UUID playerUuid) {
         Path plurifyConfigDir = getPlurifyConfigDir();
         plurifyConfigDir.toFile().mkdir();
-        return plurifyConfigDir.resolve(player.getStringUUID());
+        return plurifyConfigDir.resolve(playerUuid.toString());
+    }
+
+    public static Path getPlayerAltersConfigFile(UUID uuid) {
+        Path playerConfigDir = getPlayerConfigDir(uuid);
+        playerConfigDir.toFile().mkdir();
+        return playerConfigDir.resolve("alter_data.json");
     }
 
     /**
@@ -337,9 +424,7 @@ public class AltersIOHelper {
      * consists of alter uuids, names, icons, and (client only) skin files.
      */
     private static Path getPlayerAltersConfigFile(Player player) {
-        Path playerConfigDir = getPlayerConfigDir(player);
-        playerConfigDir.toFile().mkdir();
-        return playerConfigDir.resolve("alter_data.json");
+        return getPlayerAltersConfigFile(player.getUUID());
     }
 
     /**

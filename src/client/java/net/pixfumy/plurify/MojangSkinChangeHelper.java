@@ -29,11 +29,11 @@ public class MojangSkinChangeHelper {
             if (minecraftClient.getSingleplayerServer() == null && (serverInfo == null || !serverInfo.isLan())) {
                 Minecraft.getInstance().disconnectFromWorld(Component.translatable("plurify.skin_change_helper.server_restart_message"));
                 ConnectScreen.startConnecting(minecraftClient.gui.screen(), minecraftClient, ServerAddress.parseString(serverInfo.ip), serverInfo, false, null);
-                player.sendSystemMessage(Component.translatable("plurify.skin_change_helper.change_success").withColor(CommonColors.GREEN));
+                player.sendSystemMessage(Component.translatable("plurify.system_message.skin_change_helper.change.success").withColor(CommonColors.GREEN));
             }
         } else {
             PlurifyClient.LOGGER.info("Error changing global skin to " + skinFile + ". Got back response " + httpResponse.getStatus());
-            player.sendSystemMessage(Component.translatable("plurify.skin_change_helper.change_fail").withColor(CommonColors.RED));
+            player.sendSystemMessage(Component.translatable("plurify.system_message.skin_change_helper.change.fail").withColor(CommonColors.RED));
         }
     }
 }

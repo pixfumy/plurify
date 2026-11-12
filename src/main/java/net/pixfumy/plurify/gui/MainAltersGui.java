@@ -3,10 +3,13 @@ package net.pixfumy.plurify.gui;
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.elements.SimpleGuiElement;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
@@ -18,13 +21,12 @@ import java.util.*;
 
 public class MainAltersGui extends MultiPageGui<Alter> {
 
-    private static final int MENU_ADD_ALTER_SLOT = 49;
+    private static final int SYNC_SLOT = 45;
+    private static final int ADD_ALTER_SLOT = 49;
 
     public MainAltersGui(ServerPlayer player) {
         super(player, "plurify.gui.main_alters_gui.back_to_main_alters");
         this.setTitle(Component.translatable("plurify.gui.main_alters_gui.title"));
-
-        ((IAltersOwner) player).plurify$getCurrentAlter().setAlterEntityDataFromPlayer();
     }
 
     @Override
@@ -65,14 +67,24 @@ public class MainAltersGui extends MultiPageGui<Alter> {
     protected void displayCurrentPage() {
         super.displayCurrentPage();
         ItemStack addAlterButtonItemStack = PlurifyIcon.MENU_ADD_ALTER.getAsItemStack();
-        addAlterButtonItemStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.main_alters_gui.add_alter")
-                .setStyle(Style.EMPTY.withColor(ChatFormatting.LIGHT_PURPLE)));
+        addAlterButtonItemStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.main_alters_gui.add_alter"));
 
-        this.setSlot(MENU_ADD_ALTER_SLOT, new SimpleGuiElement(addAlterButtonItemStack, (i, clickType, slotActionType, slotGuiInterface) -> {
+        this.setSlot(ADD_ALTER_SLOT, new SimpleGuiElement(addAlterButtonItemStack, (i, clickType, slotActionType, slotGuiInterface) -> {
             if (clickType == ClickType.MOUSE_LEFT) {
                 Alter alter = new Alter(player, false);
                 new NameAlterGui(player, alter, this).open();
             }
         }));
+
+        if (((IAltersOwner) player).plurify$isClientLoaded() && FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
+            ItemStack goToSyncScreen = PlurifyIcon.MENU_SYNC.getAsItemStack();
+            goToSyncScreen.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.main_alters_gui.sync_alters"));
+
+            this.setSlot(SYNC_SLOT, new SimpleGuiElement(goToSyncScreen, (i, clickType, slotActionType, slotGuiInterface) -> {
+                if (clickType == ClickType.MOUSE_LEFT) {
+                    new SyncSystemGui(player,this).open();
+                }
+            }));
+        }
     }
 }

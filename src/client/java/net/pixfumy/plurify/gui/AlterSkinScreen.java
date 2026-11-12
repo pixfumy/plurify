@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.PlayerSkinWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -19,15 +18,13 @@ import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.commands.data.EntityDataAccessor;
-import net.minecraft.server.level.ClientInformation;
 import net.minecraft.util.CommonColors;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.player.PlayerModelType;
 import net.pixfumy.plurify.ISkinOwner;
 import net.pixfumy.plurify.MojangSkinChangeHelper;
 import net.pixfumy.plurify.SkinsIOHelper;
-import net.pixfumy.plurify.networking.CloseAlterSkinScreenC2SPayload;
+import net.pixfumy.plurify.network.skinchange.CloseAlterSkinScreenC2SPacket;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -134,7 +131,7 @@ public class AlterSkinScreen extends Screen {
 
     @Override
     public void onClose() {
-        ClientPlayNetworking.send(new CloseAlterSkinScreenC2SPayload(alterId));
+        ClientPlayNetworking.send(new CloseAlterSkinScreenC2SPacket(alterId));
         super.onClose();
     }
 

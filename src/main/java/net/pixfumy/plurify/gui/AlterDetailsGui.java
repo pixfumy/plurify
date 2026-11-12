@@ -18,7 +18,7 @@ import net.pixfumy.plurify.alter.Alter;
 import net.pixfumy.plurify.alter.IAltersOwner;
 import net.pixfumy.plurify.gui.icon.PlurifyIcon;
 import net.pixfumy.plurify.gui.icon.PlurifyIconUtil;
-import net.pixfumy.plurify.networking.OpenAlterSkinScreenS2CPayload;
+import net.pixfumy.plurify.network.skinchange.OpenAlterSkinScreenS2CPacket;
 
 import java.util.*;
 
@@ -163,7 +163,7 @@ public class AlterDetailsGui extends PlurifyChestGui {
             this.setSlot(CHANGE_SKIN_SLOT, changeSkinStack, () ->
                     {
                         this.close();
-                        ServerPlayNetworking.send(player, new OpenAlterSkinScreenS2CPayload(alter.getName().getString(), alter.getUuid().toString()));
+                        ServerPlayNetworking.send(player, new OpenAlterSkinScreenS2CPacket(alter.getName().getString(), alter.getUuid().toString()));
                     });
         } else {
             changeSkinStack.set(DataComponents.LORE, ItemLore.EMPTY.withLineAdded(

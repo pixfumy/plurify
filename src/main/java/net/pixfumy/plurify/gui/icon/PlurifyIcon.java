@@ -1,8 +1,16 @@
 package net.pixfumy.plurify.gui.icon;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -11,6 +19,7 @@ import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.component.TooltipDisplay;
 
 import javax.xml.crypto.Data;
+import java.util.Arrays;
 import java.util.List;
 
 public enum PlurifyIcon {
@@ -22,12 +31,16 @@ public enum PlurifyIcon {
     MENU_CHOOSE_ICON(Items.CARROT_ON_A_STICK, "plurify:menu/choose_icon"),
     MENU_DELETE(Items.CARROT_ON_A_STICK, "plurify:menu/delete"),
     MENU_ENDER_CHEST(Items.CARROT_ON_A_STICK, "plurify:menu/ender_chest"),
+    MENU_EXPORT_ALTERS(Items.CARROT_ON_A_STICK, "plurify:menu/export_alters"),
+    MENU_IMPORT_ALTERS(Items.CARROT_ON_A_STICK, "plurify:menu/import_alters"),
     MENU_KEEP_INV_OFF(Items.CARROT_ON_A_STICK, "plurify:menu/keep_inv_off"),
     MENU_KEEP_INV_ON(Items.CARROT_ON_A_STICK, "plurify:menu/keep_inv_on"),
     MENU_LOCATION(Items.CARROT_ON_A_STICK, "plurify:menu/location"),
     MENU_PAGE(Items.GUNPOWDER, "plurify:menu/page"),
+    MENU_PLURAL_KIT(Items.CARROT_ON_A_STICK, "plurify:menu/plural_kit"),
     MENU_RENAME(Items.CARROT_ON_A_STICK, "plurify:menu/rename"),
     MENU_SWITCH(Items.CARROT_ON_A_STICK, "plurify:menu/switch"),
+    MENU_SYNC(Items.CARROT_ON_A_STICK, "plurify:menu/sync"),
     AVATAR_BLACK_CAT(Items.CARROT_ON_A_STICK, "plurify:avatar/cat/black"),
     AVATAR_BRITISH_SHORTHAIR_CAT(Items.CARROT_ON_A_STICK, "plurify:avatar/cat/british_shorthair"),
     AVATAR_CALICO_CAT(Items.CARROT_ON_A_STICK, "plurify:avatar/cat/calico"),
@@ -128,9 +141,28 @@ public enum PlurifyIcon {
     public final Item item;
     public final String id;
 
+    public static final StreamCodec<RegistryFriendlyByteBuf, PlurifyIcon> PACKET_CODEC = StreamCodec.composite(
+            Item.STREAM_CODEC,
+            plurifyIcon -> BuiltInRegistries.ITEM.wrapAsHolder(plurifyIcon.item),
+            ByteBufCodecs.STRING_UTF8,
+            plurifyIcon -> plurifyIcon.id,
+            PlurifyIcon::getByItemAndId
+    );
+
+    public static final Codec<PlurifyIcon> CODEC = RecordCodecBuilder.create(
+            plurifyIconInstance -> plurifyIconInstance.group(
+                    Item.CODEC.fieldOf("item").forGetter(plurifyIcon -> BuiltInRegistries.ITEM.wrapAsHolder(plurifyIcon.item)),
+                    Codec.STRING.fieldOf("plurifyIconId").forGetter(plurifyIcon -> plurifyIcon.id)
+            ).apply(plurifyIconInstance, PlurifyIcon::getByItemAndId)
+    );
+
     PlurifyIcon(Item item, String id) {
         this.item = item;
         this.id = id;
+    }
+
+    private static PlurifyIcon getByItemAndId(Holder<Item> _item, String _id) {
+        return Arrays.stream(values()).filter(e -> e.item == _item.value() && e.id.equals(_id)).findFirst().get();
     }
 
     public ItemStack getAsItemStack() {

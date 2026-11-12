@@ -61,6 +61,20 @@
           }
         },
         {
+          "when": "plurify:menu/export_alters",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/export_alters"
+          }
+        },
+        {
+          "when": "plurify:menu/import_alters",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/import_alters"
+          }
+        },
+        {
           "when": "plurify:menu/keep_inv_off",
           "model": {
             "type": "minecraft:model",
@@ -82,6 +96,13 @@
           }
         },
         {
+          "when": "plurify:menu/plural_kit",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/plural_kit"
+          }
+        },
+        {
           "when": "plurify:menu/rename",
           "model": {
             "type": "minecraft:model",
@@ -93,6 +114,13 @@
           "model": {
             "type": "minecraft:model",
             "model": "item/plurify/menu/switch"
+          }
+        },
+        {
+          "when": "plurify:menu/sync",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/sync"
           }
         },
         {

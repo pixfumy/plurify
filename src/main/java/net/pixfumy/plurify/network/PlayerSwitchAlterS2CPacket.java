@@ -1,4 +1,4 @@
-package net.pixfumy.plurify.networking;
+package net.pixfumy.plurify.network;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
