@@ -19,6 +19,30 @@ public record PlayerAltersConfig(UUID playerUuid, String inGameName, UUID curren
         this(UUID.fromString(playerUuidAsString), inGameName, UUID.fromString(currentAlterUuidAsString), alters);
     }
 
+    public PlayerAltersConfig(ServerPlayer player) {
+        this(
+                player.getUUID(),
+                player.getScoreboardName(),
+                ((IAltersOwner) player).plurify$getCurrentAlter().getUuid(),
+                ((IAltersOwner) player).plurify$getAlters().values().stream().map(
+                        alter -> new AlterBasicDetail(
+                                alter.getUuid(),
+                                alter.getName().getString(),
+                                PlurifyIconUtil.getAsPlurifyItem(alter.getIcon()
+                                ))
+                ).toList()
+        );
+    }
+
+    public PlayerAltersConfig(ServerPlayer player, List<AlterBasicDetail> alters) {
+        this(
+                player.getUUID(),
+                player.getScoreboardName(),
+                ((IAltersOwner) player).plurify$getCurrentAlter().getUuid(),
+                alters
+        );
+    }
+
     public static final StreamCodec<RegistryFriendlyByteBuf, PlayerAltersConfig> PACKET_CODEC = StreamCodec.composite(
             UUIDUtil.STREAM_CODEC,
             PlayerAltersConfig::playerUuid,
@@ -41,19 +65,4 @@ public record PlayerAltersConfig(UUID playerUuid, String inGameName, UUID curren
                     Codec.list(AlterBasicDetail.CODEC).fieldOf("alters").forGetter(packet -> packet.alters))
             .apply(instance, PlayerAltersConfig::new)
     );
-
-    public PlayerAltersConfig(ServerPlayer player) {
-        this(
-                player.getUUID(),
-                player.getScoreboardName(),
-                ((IAltersOwner) player).plurify$getCurrentAlter().getUuid(),
-                ((IAltersOwner) player).plurify$getAlters().values().stream().map(
-                        alter -> new AlterBasicDetail(
-                                alter.getUuid(),
-                                alter.getName().getString(),
-                                PlurifyIconUtil.getAsPlurifyItem(alter.getIcon()
-                                ))
-                ).toList()
-        );
-    }
 }

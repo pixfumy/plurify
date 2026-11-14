@@ -6,7 +6,7 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.CommonListenerCookie;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.Connection;
-import net.pixfumy.plurify.ISkinOwner;
+import net.pixfumy.plurify.skin.ISkinOwner;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;

@@ -8,7 +8,6 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.CommonColors;
 import net.pixfumy.plurify.alter.PlayerAltersConfig;
@@ -21,6 +20,8 @@ import net.pixfumy.plurify.network.altersync.SyncAltersS2CPacket;
 import net.pixfumy.plurify.network.handshake.PlurifyHandshakeC2SPacket;
 import net.pixfumy.plurify.network.handshake.PlurifyHandshakeS2CPacket;
 import net.pixfumy.plurify.network.skinchange.OpenAlterSkinScreenS2CPacket;
+import net.pixfumy.plurify.skin.ISkinOwner;
+import net.pixfumy.plurify.skin.SkinsIOHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

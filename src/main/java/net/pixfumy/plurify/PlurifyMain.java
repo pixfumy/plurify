@@ -88,6 +88,7 @@ public class PlurifyMain implements ModInitializer {
 
 			AltersIOHelper.syncNewAltersToJsonFile(syncAltersC2SPacket.playerAltersConfig());
 			AltersIOHelper.loadPlayerAltersFromFile(context.player());
+			// return to MainAltersGUI (last user action was triggering this sync from SyncSystemGui) to reflect the newly imported alters pretty seamlessly
 			new MainAltersGui(context.player()).open();
 
 			LOGGER.info("PlurifyMain$globalReceiver(SyncAltersC2SPacket) :: alters successfully synced for player " + context.player().getScoreboardName());

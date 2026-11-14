@@ -1,4 +1,4 @@
-package net.pixfumy.plurify;
+package net.pixfumy.plurify.skin;
 
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
@@ -10,10 +10,11 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import net.minecraft.world.entity.player.PlayerModelType;
+import net.pixfumy.plurify.PlurifyClient;
 
 import java.io.File;
 
-public class MojangSkinChangeHelper {
+public class MojangSkinChangeClient {
     public static void setSkinTextureGlobal(File skinFile, PlayerModelType playerSkinType) {
         Minecraft minecraftClient = Minecraft.getInstance();
         LocalPlayer player = minecraftClient.player;

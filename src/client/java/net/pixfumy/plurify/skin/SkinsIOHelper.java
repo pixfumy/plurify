@@ -1,5 +1,6 @@
-package net.pixfumy.plurify;
+package net.pixfumy.plurify.skin;
 
+import net.pixfumy.plurify.PlurifyClient;
 import net.pixfumy.plurify.fileio.AltersIOHelper;
 import org.apache.commons.io.FileUtils;
 import com.mojang.blaze3d.platform.NativeImage;

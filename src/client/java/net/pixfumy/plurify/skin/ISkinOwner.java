@@ -1,4 +1,4 @@
-package net.pixfumy.plurify;
+package net.pixfumy.plurify.skin;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.world.entity.player.PlayerModelType;

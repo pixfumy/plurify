@@ -21,9 +21,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.player.PlayerModelType;
-import net.pixfumy.plurify.ISkinOwner;
-import net.pixfumy.plurify.MojangSkinChangeHelper;
-import net.pixfumy.plurify.SkinsIOHelper;
+import net.pixfumy.plurify.skin.ISkinOwner;
+import net.pixfumy.plurify.skin.MojangSkinChangeClient;
+import net.pixfumy.plurify.skin.SkinsIOHelper;
 import net.pixfumy.plurify.network.skinchange.CloseAlterSkinScreenC2SPacket;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -77,7 +77,7 @@ public class AlterSkinScreen extends Screen {
 
             ((ISkinOwner) player).plurify$setCustomSkin(this.skinAsNativeImage, alterId);
 
-            MojangSkinChangeHelper.setSkinTextureGlobal(
+            MojangSkinChangeClient.setSkinTextureGlobal(
                     SkinsIOHelper.getPlayerAlterSkinFile(player, alterId),
                     ((ISkinOwner) player).plurify$getPlayerSkinType()
             );

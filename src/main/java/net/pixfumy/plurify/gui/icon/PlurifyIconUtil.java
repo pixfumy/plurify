@@ -11,6 +11,8 @@ import net.minecraft.world.item.component.TooltipDisplay;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 /**
  * Util class for PlurifyItems, mainly in interacting with ItemStacks
@@ -49,6 +51,14 @@ public class PlurifyIconUtil {
 
     public static PlurifyIcon getPlurifyIconById(String id) {
         return Arrays.stream(PlurifyIcon.values()).filter(plurifyIcon -> plurifyIcon.id.equals(id)).findFirst().get();
+    }
+
+    public static PlurifyIcon getRandomAlterIcon() {
+        List<PlurifyIcon> alterIcons = Arrays.stream(PlurifyIcon.values())
+                .filter(plurifyIcon -> !plurifyIcon.id.startsWith("plurify:menu/"))
+                .toList();
+
+        return alterIcons.get(ThreadLocalRandom.current().nextInt(alterIcons.size()));
     }
 
     public static boolean arePlurifyIconsEqual(ItemStack itemStack1, ItemStack itemStack2) {

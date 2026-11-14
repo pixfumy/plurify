@@ -76,15 +76,13 @@ public class MainAltersGui extends MultiPageGui<Alter> {
             }
         }));
 
-        if (((IAltersOwner) player).plurify$isClientLoaded() && FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
-            ItemStack goToSyncScreen = PlurifyIcon.MENU_SYNC.getAsItemStack();
-            goToSyncScreen.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.main_alters_gui.sync_alters"));
+        ItemStack goToSyncScreen = PlurifyIcon.MENU_SYNC.getAsItemStack();
+        goToSyncScreen.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.main_alters_gui.sync_alters"));
 
-            this.setSlot(SYNC_SLOT, new SimpleGuiElement(goToSyncScreen, (i, clickType, slotActionType, slotGuiInterface) -> {
-                if (clickType == ClickType.MOUSE_LEFT) {
-                    new SyncSystemGui(player,this).open();
-                }
-            }));
-        }
+        this.setSlot(SYNC_SLOT, new SimpleGuiElement(goToSyncScreen, (i, clickType, slotActionType, slotGuiInterface) -> {
+            if (clickType == ClickType.MOUSE_LEFT) {
+                new SyncSystemGui(player,this).open();
+            }
+        }));
     }
 }
