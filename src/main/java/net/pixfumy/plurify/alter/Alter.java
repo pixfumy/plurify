@@ -365,6 +365,8 @@ public class Alter {
         if (vehicle != null) {
             rootVehicle.save(vehicleTagValueOutput);
             this.vehicle = vehicleTagValueOutput.buildResult();
+        } else {
+            this.vehicle = null;
         }
     }
 
