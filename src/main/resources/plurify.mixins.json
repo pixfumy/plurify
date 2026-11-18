@@ -11,7 +11,8 @@
     "advancement.PlayerAdvancementsMixin",
     "alter.KeepInventoryMixin",
     "alter.PlayerAltersMixin",
-    "command.CommandManagerMixin"
+    "command.CommandManagerMixin",
+    "vault.VaultServerDataMixin"
   ],
   "injectors": {
     "defaultRequire": 1
