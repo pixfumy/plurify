@@ -449,7 +449,9 @@ public class Alter {
         for (Map.Entry<Identifier, AdvancementProgress> mapEntry : this.advancements.map().entrySet()) {
             AdvancementHolder advancementHolder = this.allAdvancementHolders.get(mapEntry.getKey());
             AdvancementProgress progress = mapEntry.getValue();
-            if (progress.isDone()) {
+
+            // if another mod/datapack added an advancement to the file which was since removed, advancementHolder will be null, so continue to avoid NPE
+            if (progress.isDone() || advancementHolder == null) {
                 continue;
             }
             for (String criterion : progress.getCompletedCriteria()) {
