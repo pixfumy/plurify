@@ -220,7 +220,7 @@ public class AlterDetailsGui extends PlurifyChestGui {
     }
 
     private ItemStack getHealthHungerItemStack() {
-        float health = alter.getHealth();
+        int health = (int) Math.ceil(alter.getHealth());
         int hunger = alter.getFoodLevel();
 
         ItemStack healthHungerItemStack = PlurifyIcon.MENU_HEALTH_HUNGER.getAsItemStack();
@@ -229,14 +229,14 @@ public class AlterDetailsGui extends PlurifyChestGui {
         healthHungerItemStack.set(DataComponents.LORE, ItemLore.EMPTY
                 .withLineAdded(
                         Component.translatable("plurify.gui.alter_details_gui.health_hunger.health",
-                                Component.translatable(
-                                        "\uD83D\uDC97".repeat(((int) health) / 2) + (health % 1 > 0 ? "\uD83D\uDC94" : "")
+                                Component.literal(
+                                        "\uD83D\uDC97".repeat((int) health / 2) + "\uD83D\uDC94".repeat(health % 2)
                                 )
                         ).withColor(TextColor.RED)
                 )
                 .withLineAdded(Component.translatable("plurify.gui.alter_details_gui.health_hunger.hunger",
-                                Component.translatable(
-                                        "\uD83C\uDF57".repeat(((int) hunger) / 2) + "\uD83E\uDDB4".repeat(hunger % 2)
+                                Component.literal(
+                                        "\uD83C\uDF57".repeat((hunger) / 2) + "\uD83E\uDDB4".repeat(hunger % 2)
                                 )
                         ).withColor(TextColor.GOLD)
                 )

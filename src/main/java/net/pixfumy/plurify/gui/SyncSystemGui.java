@@ -75,6 +75,9 @@ public class SyncSystemGui extends PlurifyChestGui {
         // import alters from PluralKit
         ItemStack importAltersFromPK = PlurifyIcon.MENU_PLURAL_KIT.getAsItemStack();
         importAltersFromPK.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.sync_system_gui.import_system_from_pk"));
+        importAltersFromPK.set(DataComponents.LORE,
+                PlurifyIconUtil.splitTextComponentIntoLoreLines(Component.translatable("plurify.gui.sync_system_gui.import_system_from_pk.lore")));
+
         this.setSlot(13, new SimpleGuiElement(importAltersFromPK, (i, clickType, slotActionType, slotGuiInterface) -> {
             if (clickType == ClickType.MOUSE_LEFT) {
                 new SignGui(player) {
@@ -99,6 +102,9 @@ public class SyncSystemGui extends PlurifyChestGui {
             // import alter from single player
             ItemStack importAltersFromSingleplayer = PlurifyIcon.MENU_IMPORT_ALTERS.getAsItemStack();
             importAltersFromSingleplayer.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.sync_system_gui.import_system_from_sp"));
+            importAltersFromSingleplayer.set(DataComponents.LORE,
+                    PlurifyIconUtil.splitTextComponentIntoLoreLines(Component.translatable("plurify.gui.sync_system_gui.import_system_from_sp.lore"))
+            );
 
             this.setSlot(0, new SimpleGuiElement(importAltersFromSingleplayer, (i, clickType, slotActionType, slotGuiInterface) -> {
                 if (clickType == ClickType.MOUSE_LEFT) {
@@ -110,6 +116,9 @@ public class SyncSystemGui extends PlurifyChestGui {
             // export alters to single player
             ItemStack syncAltersToSinglePlayer = PlurifyIcon.MENU_EXPORT_ALTERS.getAsItemStack();
             syncAltersToSinglePlayer.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.sync_system_gui.export_system_to_sp"));
+            syncAltersToSinglePlayer.set(DataComponents.LORE,
+                    PlurifyIconUtil.splitTextComponentIntoLoreLines(Component.translatable("plurify.gui.sync_system_gui.export_system_to_sp.lore"))
+            );
 
             this.setSlot(35, new SimpleGuiElement(syncAltersToSinglePlayer, (i, clickType, slotActionType, slotGuiInterface) -> {
                 if (clickType == ClickType.MOUSE_LEFT) {

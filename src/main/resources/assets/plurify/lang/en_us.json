@@ -59,8 +59,11 @@
   "plurify.gui.sync_system_gui.enter_pk_id.line1": "Enter PluralKit",
   "plurify.gui.sync_system_gui.enter_pk_id.line2": "System ID",
   "plurify.gui.sync_system_gui.export_system_to_sp": "Export System to Singleplayer",
+  "plurify.gui.sync_system_gui.export_system_to_sp.lore": "Exports this server's version of your system to your singleplayer instance. Plurify will attempt to combine both versions but may create duplicates.",
   "plurify.gui.sync_system_gui.import_system_from_sp": "Import System From Singleplayer",
+  "plurify.gui.sync_system_gui.import_system_from_sp.lore": "Imports your singleplayer system into this server. Plurify will attempt to combine both versions but may create duplicates.",
   "plurify.gui.sync_system_gui.import_system_from_pk": "Import System from PluralKit",
+  "plurify.gui.sync_system_gui.import_system_from_pk.lore": "Imports your member names from a PluralKit system into Minecraft. Plurify will attempt to combine both versions but may create duplicates.",
   "plurify.gui.sync_system_gui.title": "Import/Export System",
   "plurify.gui.view_ender_chest_gui.title": "Ender Chest for %s",
   "plurify.skin_change_helper.server_restart_message": "Changing Skin"
