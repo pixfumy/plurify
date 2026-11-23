@@ -32,6 +32,7 @@ public enum PlurifyIcon {
     MENU_DELETE(Items.CARROT_ON_A_STICK, "plurify:menu/delete"),
     MENU_ENDER_CHEST(Items.CARROT_ON_A_STICK, "plurify:menu/ender_chest"),
     MENU_EXPORT_ALTERS(Items.CARROT_ON_A_STICK, "plurify:menu/export_alters"),
+    MENU_HEALTH_HUNGER(Items.CARROT_ON_A_STICK, "plurify:menu/health_hunger"),
     MENU_IMPORT_ALTERS(Items.CARROT_ON_A_STICK, "plurify:menu/import_alters"),
     MENU_KEEP_INV_OFF(Items.CARROT_ON_A_STICK, "plurify:menu/keep_inv_off"),
     MENU_KEEP_INV_ON(Items.CARROT_ON_A_STICK, "plurify:menu/keep_inv_on"),

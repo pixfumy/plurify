@@ -68,6 +68,13 @@
           }
         },
         {
+          "when": "plurify:menu/health_hunger",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/menu/health_hunger"
+          }
+        },
+        {
           "when": "plurify:menu/import_alters",
           "model": {
             "type": "minecraft:model",

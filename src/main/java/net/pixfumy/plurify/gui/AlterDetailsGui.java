@@ -7,6 +7,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -26,6 +27,7 @@ public class AlterDetailsGui extends PlurifyChestGui {
     private static final int ARMOUR_HELMET_SLOT = 0;
     private static final int RENAME_ALTER_SLOT = 1;
     private static final int CHANGE_ICON_SLOT = 3;
+    private static final int HEALTH_HUNGER_SLOT = 5;
     private static final int LAST_SEEN_SLOT = 8;
     private static final int ALTER_ICON_SLOT = 11;
     private static final int KEEP_INV_SLOT = 15;
@@ -53,6 +55,9 @@ public class AlterDetailsGui extends PlurifyChestGui {
         super(player, "plurify.gui.alter_details_gui.back_to_alter_details", mainAltersGui, alter.getPlayerInventory());
 
         this.alter = alter;
+        if (alter == ((IAltersOwner) player).plurify$getCurrentAlter()) {
+            alter.setAlterEntityDataFromPlayer();
+        }
 
         // start with a red background
         ItemStack redGlassPane = PlurifyIconUtil.getItemStackWithNoTooltip(Items.STAINED_GLASS_PANE.red());
@@ -89,6 +94,10 @@ public class AlterDetailsGui extends PlurifyChestGui {
         ItemStack alterIconStack = alter.getIcon();
         alterIconStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.alter_details_gui.selected_icon"));
         this.setSlot(ALTER_ICON_SLOT, alterIconStack);
+
+        // Health and hunger
+        ItemStack healthHungerStack = getHealthHungerItemStack();
+        this.setSlot(HEALTH_HUNGER_SLOT, healthHungerStack);
 
         // Last Seen at
         ItemStack lastSeenStack = PlurifyIcon.MENU_LOCATION.getAsItemStack();
@@ -208,6 +217,31 @@ public class AlterDetailsGui extends PlurifyChestGui {
         ItemStack keepInventoryStack = getKeepInvIcon(alter.hasKeepInventory());
 
         this.setSlot(KEEP_INV_SLOT, keepInventoryStack, this::onKeepInvToggle);
+    }
 
+    private ItemStack getHealthHungerItemStack() {
+        float health = alter.getHealth();
+        int hunger = alter.getFoodLevel();
+
+        ItemStack healthHungerItemStack = PlurifyIcon.MENU_HEALTH_HUNGER.getAsItemStack();
+        healthHungerItemStack.set(DataComponents.ITEM_NAME, Component.translatable("plurify.gui.alter_details_gui.health_hunger"));
+
+        healthHungerItemStack.set(DataComponents.LORE, ItemLore.EMPTY
+                .withLineAdded(
+                        Component.translatable("plurify.gui.alter_details_gui.health_hunger.health",
+                                Component.translatable(
+                                        "\uD83D\uDC97".repeat(((int) health) / 2) + (health % 1 > 0 ? "\uD83D\uDC94" : "")
+                                )
+                        ).withColor(TextColor.RED)
+                )
+                .withLineAdded(Component.translatable("plurify.gui.alter_details_gui.health_hunger.hunger",
+                                Component.translatable(
+                                        "\uD83C\uDF57".repeat(((int) hunger) / 2) + "\uD83E\uDDB4".repeat(hunger % 2)
+                                )
+                        ).withColor(TextColor.GOLD)
+                )
+        );
+
+        return healthHungerItemStack;
     }
 }
