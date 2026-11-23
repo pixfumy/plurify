@@ -187,6 +187,7 @@ public class AltersIOHelper {
 
             alter.setExperienceLevel(nbtReadView.read("ExperienceLevel", Codec.INT).get());
             alter.setTotalExperience(nbtReadView.read("TotalExperience", Codec.INT).get());
+            alter.setExperienceProgress(nbtReadView.read("ExperienceProgress", Codec.FLOAT).get());
 
             alter.setFoodLevel(nbtReadView.read("FoodLevel", Codec.INT).get());
             alter.setSaturationLevel(nbtReadView.read("SaturationLevel", Codec.FLOAT).get());
@@ -244,6 +245,7 @@ public class AltersIOHelper {
 
         nbtWriteView.store("ExperienceLevel", Codec.INT, alter.getExperienceLevel());
         nbtWriteView.store("TotalExperience", Codec.INT, alter.getTotalExperience());
+        nbtWriteView.store("ExperienceProgress", Codec.FLOAT, alter.getExperienceProgress());
 
         nbtWriteView.store("FoodLevel", Codec.INT, alter.getFoodLevel());
         nbtWriteView.store("SaturationLevel", Codec.FLOAT, alter.getSaturationLevel());
