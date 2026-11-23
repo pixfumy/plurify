@@ -86,7 +86,13 @@ public class AlterSkinScreen extends Screen {
                 .size(120, 20)
                 .build();
 
-        switchGlobalButton.active = skinAsNativeImage != null;
+        // Show the Switching To as the player's custom skin if it exists
+        switchGlobalButton.active = false;
+        if (skinAsNativeImage != null) {
+            switchGlobalButton.active = true;
+            ((ISkinOwner) previewPlayer).plurify$setCustomSkin(skinAsNativeImage, alterId);
+        }
+
         this.addRenderableWidget(switchGlobalButton);
 
         this.doneButton = Button.builder(Component.translatable("gui.done"),
