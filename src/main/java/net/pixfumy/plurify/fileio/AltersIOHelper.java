@@ -194,6 +194,10 @@ public class AltersIOHelper {
             alter.setExhaustion(nbtReadView.read("ExperienceLevel", Codec.FLOAT).get());
             alter.setFoodTickTimer(nbtReadView.read("FoodTickTimer", Codec.INT).get());
 
+            alter.setRemainingFireTicks(nbtReadView.read("RemainingFireTicks", Codec.INT).get());
+            alter.setAirSupply(nbtReadView.read("AirSupply", Codec.INT).get());
+            alter.setTicksFrozen(nbtReadView.read("TicksFrozen", Codec.INT).get());
+
             alter.setVehicle(nbtReadView.read("Vehicle", CompoundTag.CODEC).orElse(null));
 
             alter.setEnderPearls(nbtReadView.read("EnderPearls", CompoundTag.CODEC).get());
@@ -254,6 +258,10 @@ public class AltersIOHelper {
         nbtWriteView.store("SaturationLevel", Codec.FLOAT, alter.getSaturationLevel());
         nbtWriteView.store("Exhaustion", Codec.FLOAT, alter.getExhaustion());
         nbtWriteView.store("FoodTickTimer", Codec.INT, alter.getTotalExperience());
+
+        nbtWriteView.store("RemainingFireTicks", Codec.INT, alter.getRemainingFireTicks());
+        nbtWriteView.store("AirSupply", Codec.INT, alter.getAirSupply());
+        nbtWriteView.store("TicksFrozen", Codec.INT, alter.getTicksFrozen());
 
         nbtWriteView.store("KeepInventory", Codec.BOOL, alter.hasKeepInventory());
 

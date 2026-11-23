@@ -82,6 +82,10 @@ public class Alter {
     private float exhaustion;
     private int foodTickTimer;
 
+    private int remainingFireTicks;
+    private int airSupply = 300;
+    private int ticksFrozen;
+
     private boolean keepInventory;
 
     private ServerLevel world;
@@ -272,6 +276,30 @@ public class Alter {
         this.absorptionAmount = absorptionAmount;
     }
 
+    public int getRemainingFireTicks() {
+        return remainingFireTicks;
+    }
+
+    public void setRemainingFireTicks(int remainingFireTicks) {
+        this.remainingFireTicks = remainingFireTicks;
+    }
+
+    public int getAirSupply() {
+        return airSupply;
+    }
+
+    public void setAirSupply(int airSupply) {
+        this.airSupply = airSupply;
+    }
+
+    public int getTicksFrozen() {
+        return ticksFrozen;
+    }
+
+    public void setTicksFrozen(int ticksFrozen) {
+        this.ticksFrozen = ticksFrozen;
+    }
+
     public List<AttributeInstance.Packed> getAttributes() {
         return attributes;
     }
@@ -389,6 +417,10 @@ public class Alter {
         this.exhaustion = ((HungerManagerAccess) this.player.getFoodData()).getExhaustionLevel();
         this.foodTickTimer = ((HungerManagerAccess) this.player.getFoodData()).getTickTimer();
 
+        this.remainingFireTicks = this.player.getRemainingFireTicks();
+        this.airSupply = this.player.getAirSupply();
+        this.ticksFrozen = this.player.getTicksFrozen();
+
         TagValueOutput vehicleTagValueOutput = TagValueOutput.createWithContext(new ProblemReporter.ScopedCollector(PlurifyMain.LOGGER), player.registryAccess());
         Entity vehicle = player.getVehicle();
 
@@ -479,6 +511,12 @@ public class Alter {
         this.player.getFoodData().setSaturation(this.getSaturationLevel());
         ((HungerManagerAccess) this.player.getFoodData()).setExhaustionLevel(this.getExhaustion());
         ((HungerManagerAccess) this.player.getFoodData()).setTickTimer(this.getFoodTickTimer());
+
+        this.player.setRemainingFireTicks(this.remainingFireTicks);
+        this.player.igniteForTicks(this.remainingFireTicks);
+        this.player.setAirSupply(this.airSupply);
+        this.player.setTicksFrozen(this.ticksFrozen);
+
     }
 
     public void setAlterAdvancementsFromPlayer() {

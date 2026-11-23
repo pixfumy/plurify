@@ -7,7 +7,6 @@ import net.minecraft.world.entity.animal.equine.AbstractHorse;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.pixfumy.plurify.alter.IAltersOwner;
-import net.pixfumy.plurify.pet.IAlterOwnableEntity;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,7 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Mixin(TamableAnimal.class)
-public abstract class TamableAnimalMixin implements IAlterOwnableEntity, OwnableEntity {
+public abstract class TamableAnimalMixin implements OwnableEntity {
 
     @Nullable
     private UUID ownerAlterUuid;
