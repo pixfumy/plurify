@@ -40,10 +40,7 @@ import net.pixfumy.plurify.PlurifyMain;
 import net.pixfumy.plurify.advancement.AdvancementUtil;
 import net.pixfumy.plurify.advancement.IAdvancementsOwner;
 import net.pixfumy.plurify.gui.ChangeAlterIconGui;
-import net.pixfumy.plurify.mixin.access.AttributeSupplierAccess;
-import net.pixfumy.plurify.mixin.access.HungerManagerAccess;
-import net.pixfumy.plurify.mixin.access.PlayerAdvancementsAccess;
-import net.pixfumy.plurify.mixin.access.StatsCounterAccess;
+import net.pixfumy.plurify.mixin.access.*;
 
 import java.util.*;
 import java.util.function.Function;
@@ -92,8 +89,9 @@ public class Alter {
     private ItemStack icon;
 
     private CompoundTag vehicle;
-
     private CompoundTag enderPearls;
+    private CompoundTag shoulderEntityLeft;
+    private CompoundTag shoulderEntityRight;
 
     public Alter(ServerPlayer player, boolean copyEntityDataFromPlayer) {
         this(null, player.getName().copy(), player, copyEntityDataFromPlayer);
@@ -126,6 +124,8 @@ public class Alter {
         }
 
         this.enderPearls = new CompoundTag();
+        this.shoulderEntityLeft = new CompoundTag();
+        this.shoulderEntityRight = new CompoundTag();
 
         // Initialized here in case player is new or Alter is new - if not icon gets overwritten from the json file in AltersIOHelper
         this.icon = ChangeAlterIconGui.ITEMS_FOR_ICONS.get(new Random().nextInt(ChangeAlterIconGui.ITEMS_FOR_ICONS.size()));
@@ -320,6 +320,23 @@ public class Alter {
         this.enderPearls = enderPearls;
     }
 
+    public CompoundTag getShoulderEntityLeft() {
+        return shoulderEntityLeft;
+    }
+
+    public void setShoulderEntityLeft(CompoundTag shoulderEntityLeft) {
+        this.shoulderEntityLeft = shoulderEntityLeft;
+    }
+
+
+    public CompoundTag getShoulderEntityRight() {
+        return shoulderEntityRight;
+    }
+
+    public void setShoulderEntityRight(CompoundTag shoulderEntityRight) {
+        this.shoulderEntityRight = shoulderEntityRight;
+    }
+
     public boolean hasKeepInventory() {
         return keepInventory;
     }
@@ -389,6 +406,9 @@ public class Alter {
 
         this.enderPearls = new CompoundTag();
         this.enderPearls.put("ender_pearls", enderPearlsListTag);
+
+        this.shoulderEntityLeft = player.getShoulderEntityLeft().copy();
+        this.shoulderEntityRight = player.getShoulderEntityRight().copy();
     }
 
     public void setPlayerEntityDataFromAlter() {
@@ -434,6 +454,9 @@ public class Alter {
 
         ValueInput enderPearlTagValueInputList = TagValueInput.create(new ProblemReporter.ScopedCollector(PlurifyMain.LOGGER), player.registryAccess(), this.enderPearls);
         this.player.loadAndSpawnEnderPearls(enderPearlTagValueInputList);
+
+        ((ServerPlayerAccess) this.player).invokeSetShoulderEntityLeft(this.shoulderEntityLeft);
+        ((ServerPlayerAccess) this.player).invokeSetShoulderEntityRight(this.shoulderEntityRight);
 
         this.player.setRespawnPosition(this.respawn, false);
 

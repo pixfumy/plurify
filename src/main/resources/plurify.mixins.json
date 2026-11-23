@@ -6,6 +6,7 @@
     "access.AttributeSupplierAccess",
     "access.HungerManagerAccess",
     "access.PlayerAdvancementsAccess",
+    "access.ServerPlayerAccess",
     "access.ServerStatsCounterAccess",
     "access.StatsCounterAccess",
     "advancement.PlayerAdvancementsMixin",

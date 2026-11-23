@@ -198,6 +198,9 @@ public class AltersIOHelper {
 
             alter.setEnderPearls(nbtReadView.read("EnderPearls", CompoundTag.CODEC).get());
 
+            alter.setShoulderEntityLeft(nbtReadView.read("ShoulderEntityLeft", CompoundTag.CODEC).get());
+            alter.setShoulderEntityRight(nbtReadView.read("ShoulderEntityRight", CompoundTag.CODEC).get());
+
             alter.setKeepInventory(nbtReadView.read("KeepInventory", Codec.BOOL).get());
 
         } catch (IOException | NoSuchElementException | NullPointerException e) {
@@ -260,6 +263,9 @@ public class AltersIOHelper {
         }
 
         nbtWriteView.store("EnderPearls", CompoundTag.CODEC, alter.getEnderPearls());
+
+        nbtWriteView.store("ShoulderEntityLeft", CompoundTag.CODEC, alter.getShoulderEntityLeft());
+        nbtWriteView.store("ShoulderEntityRight", CompoundTag.CODEC, alter.getShoulderEntityRight());
 
         Path entityDataFile = getPlurifyWorldPlayerAlterDataFile(player, alter);
         try {
