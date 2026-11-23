@@ -5,13 +5,23 @@
 	"name": "Plurify",
 	"description": "Per-alter characters for DID systems.",
 	"authors": [
-		"pixfumy"
+		{
+			"name": "pixfumy",
+			"contact": {
+				"homepage": "https://github.com//pixfumy"
+			}
+		},
+		{
+			"name": "snuffypuffs",
+			"contact": {
+				"homepage": "https://linktr.ee/snuffypuffs"
+			}
+		}
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/pixfumy",
+		"sources": "https://github.com/pixfumy/plurify"
 	},
-
 	"license": "LGPL-3.0",
 	"icon": "assets/plurify/icon.png",
 	"environment": "*",
