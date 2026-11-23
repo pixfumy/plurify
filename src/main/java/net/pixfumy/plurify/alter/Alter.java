@@ -10,7 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
@@ -28,6 +28,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.PlayerEnderChestContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.level.storage.TagValueInput;
@@ -92,6 +93,8 @@ public class Alter {
 
     private CompoundTag vehicle;
 
+    private CompoundTag enderPearls;
+
     public Alter(ServerPlayer player, boolean copyEntityDataFromPlayer) {
         this(null, player.getName().copy(), player, copyEntityDataFromPlayer);
     }
@@ -121,6 +124,8 @@ public class Alter {
             this.position = new Vec3(spawnPoint.getX(), spawnPoint.getY(), spawnPoint.getZ());
             this.rotation = new Vec2(0, 0);
         }
+
+        this.enderPearls = new CompoundTag();
 
         // Initialized here in case player is new or Alter is new - if not icon gets overwritten from the json file in AltersIOHelper
         this.icon = ChangeAlterIconGui.ITEMS_FOR_ICONS.get(new Random().nextInt(ChangeAlterIconGui.ITEMS_FOR_ICONS.size()));
@@ -307,6 +312,14 @@ public class Alter {
         this.vehicle = vehicle;
     }
 
+    public CompoundTag getEnderPearls() {
+        return enderPearls;
+    }
+
+    public void setEnderPearls(CompoundTag enderPearls) {
+        this.enderPearls = enderPearls;
+    }
+
     public boolean hasKeepInventory() {
         return keepInventory;
     }
@@ -361,13 +374,21 @@ public class Alter {
 
         TagValueOutput vehicleTagValueOutput = TagValueOutput.createWithContext(new ProblemReporter.ScopedCollector(PlurifyMain.LOGGER), player.registryAccess());
         Entity vehicle = player.getVehicle();
-        Entity rootVehicle = player.getRootVehicle();
-        if (vehicle != null) {
-            rootVehicle.save(vehicleTagValueOutput);
-            this.vehicle = vehicleTagValueOutput.buildResult();
-        } else {
-            this.vehicle = null;
-        }
+
+        this.vehicle = Optional.ofNullable(vehicle).map(_ -> {
+                    vehicle.save(vehicleTagValueOutput);
+                    return vehicleTagValueOutput.buildResult();
+                }).orElse(null);
+
+        Tag enderPearlsListTag = NbtOps.INSTANCE.createList(this.player.getEnderPearls().stream().map(thrownEnderpearl -> {
+                    TagValueOutput thrownEnderPearlValueOutput = TagValueOutput.createWithContext(new ProblemReporter.ScopedCollector(PlurifyMain.LOGGER), player.registryAccess());
+                    thrownEnderpearl.save(thrownEnderPearlValueOutput);
+                    thrownEnderPearlValueOutput.store("ender_pearl_dimension", Level.RESOURCE_KEY_CODEC, thrownEnderpearl.level().dimension());
+                    return thrownEnderPearlValueOutput.buildResult();
+        }).map(Function.identity()));
+
+        this.enderPearls = new CompoundTag();
+        this.enderPearls.put("ender_pearls", enderPearlsListTag);
     }
 
     public void setPlayerEntityDataFromAlter() {
@@ -405,6 +426,14 @@ public class Alter {
         if (vehicleEntity != null) {
             this.player.startRiding(vehicleEntity, true, false);
         }
+
+        this.player.getEnderPearls().forEach(thrownEnderpearl -> {
+            player.deregisterEnderPearl(thrownEnderpearl);
+            thrownEnderpearl.remove(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
+        });
+
+        ValueInput enderPearlTagValueInputList = TagValueInput.create(new ProblemReporter.ScopedCollector(PlurifyMain.LOGGER), player.registryAccess(), this.enderPearls);
+        this.player.loadAndSpawnEnderPearls(enderPearlTagValueInputList);
 
         this.player.setRespawnPosition(this.respawn, false);
 

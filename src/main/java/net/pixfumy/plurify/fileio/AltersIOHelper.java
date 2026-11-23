@@ -195,6 +195,7 @@ public class AltersIOHelper {
 
             alter.setVehicle(nbtReadView.read("Vehicle", CompoundTag.CODEC).orElse(null));
 
+            alter.setEnderPearls(nbtReadView.read("EnderPearls", CompoundTag.CODEC).get());
 
             alter.setKeepInventory(nbtReadView.read("KeepInventory", Codec.BOOL).get());
 
@@ -255,6 +256,8 @@ public class AltersIOHelper {
         if (vehicle != null) {
             nbtWriteView.store("Vehicle", CompoundTag.CODEC, vehicle);
         }
+
+        nbtWriteView.store("EnderPearls", CompoundTag.CODEC, alter.getEnderPearls());
 
         Path entityDataFile = getPlurifyWorldPlayerAlterDataFile(player, alter);
         try {
