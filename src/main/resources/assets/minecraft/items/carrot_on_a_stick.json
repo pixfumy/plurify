@@ -656,6 +656,55 @@
           }
         },
         {
+          "when": "plurify:avatar/allay",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/allay"
+          }
+        },
+        {
+          "when": "plurify:avatar/axolotl/blue_axolotl",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/axolotl/blue_axolotl"
+          }
+        },
+        {
+          "when": "plurify:avatar/axolotl/brown_axolotl",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/axolotl/brown_axolotl"
+          }
+        },
+        {
+          "when": "plurify:avatar/axolotl/cyan_axolotl",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/axolotl/cyan_axolotl"
+          }
+        },
+        {
+          "when": "plurify:avatar/axolotl/pink_axolotl",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/axolotl/pink_axolotl"
+          }
+        },
+        {
+          "when": "plurify:avatar/axolotl/yellow_axolotl",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/axolotl/yellow_axolotl"
+          }
+        },
+        {
+          "when": "plurify:avatar/chicken/baby_chicken",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/chicken/baby_chicken"
+          }
+        },
+        {
           "when": "plurify:avatar/cat/black",
           "model": {
             "type": "minecraft:model",
@@ -793,6 +842,104 @@
           "model": {
             "type": "minecraft:model",
             "model": "item/plurify/avatar/dog/woods_dog"
+          }
+        },
+        {
+          "when": "plurify:avatar/cow/brown_mooshroom",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/cow/brown_mooshroom"
+          }
+        },
+        {
+          "when": "plurify:avatar/cow/cold_cow",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/cow/cold_cow"
+          }
+        },
+        {
+          "when": "plurify:avatar/cow/cow",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/cow/cow"
+          }
+        },
+        {
+          "when": "plurify:avatar/cow/mooshroom",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/cow/mooshroom"
+          }
+        },
+        {
+          "when": "plurify:avatar/cow/warm_cow",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/cow/warm_cow"
+          }
+        },
+        {
+          "when": "plurify:avatar/fox/fox",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/fox/fox"
+          }
+        },
+        {
+          "when": "plurify:avatar/fox/snow_fox",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/fox/snow_fox"
+          }
+        },
+        {
+          "when": "plurify:avatar/pig/cold_pig",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/pig/cold_pig"
+          }
+        },
+        {
+          "when": "plurify:avatar/pig/pig",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/pig/pig"
+          }
+        },
+        {
+          "when": "plurify:avatar/pig/warm_pig",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/pig/warm_pig"
+          }
+        },
+        {
+          "when": "plurify:avatar/golem/copper_golem",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/golem/copper_golem"
+          }
+        },
+        {
+          "when": "plurify:avatar/golem/iron_golem",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/golem/iron_golem"
+          }
+        },
+        {
+          "when": "plurify:avatar/villager/villager",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/villager/villager"
+          }
+        },
+        {
+          "when": "plurify:avatar/villager/wandering_trader",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/villager/wandering_trader"
           }
         }
       ],
