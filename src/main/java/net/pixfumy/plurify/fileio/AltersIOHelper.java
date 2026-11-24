@@ -67,6 +67,8 @@ public class AltersIOHelper {
                     ((IAltersOwner)player).plurify$switchToAlter(alter);
                 }
 
+                alter.setIcon(alterBasicDetail.icon().getAsItemStack());
+
                 alters.put(alter.getUuid(), alter);
             }
 
@@ -87,45 +89,24 @@ public class AltersIOHelper {
         Path playerDir = getPlurifyWorldPlayerDir(player);
         File playerFile = getPlayerAltersConfigFile(player).toFile();
 
-        JsonObject playerJson = new JsonObject();
-        playerJson.addProperty("uuid", player.getStringUUID());
-        playerJson.addProperty("inGameName", player.getScoreboardName());
-        playerJson.addProperty("currentAlterUuid", ((IAltersOwner)player).plurify$getCurrentAlter().getUuid().toString());
-
         HashMap<UUID, Alter> alters = ((IAltersOwner)player).plurify$getAlters();
-        JsonArray alterJsons = new JsonArray();
 
         PlurifyMain.LOGGER.info("AltersIOHelper :: Writing " + alters.size() + " alters for player " + player.getScoreboardName());
 
         for (Alter alter : alters.values()) {
-            JsonObject alterJson = new JsonObject();
-            alterJson.addProperty("uuid", alter.getUuid().toString());
-            alterJson.addProperty("name", alter.getName().getString());
-
-            JsonObject alterIcon = new JsonObject();
-            ItemStack alterIconStack = alter.getIcon();
-            alterIcon.addProperty("item", BuiltInRegistries.ITEM.getKey(alterIconStack.getItem()).toString());
-            PlurifyIcon alterIconAsPlurifyIcon = PlurifyIconUtil.getAsPlurifyItem(alterIconStack);
-            if (alterIconAsPlurifyIcon != null) {
-                alterIcon.addProperty("plurifyIconId", alterIconAsPlurifyIcon.id);
-            }
-            alterJson.add("icon", alterIcon);
-
-            alterJsons.add(alterJson);
             writePlayerAlterEntityDataToFile(player, alter);
             writePlayerAlterAdvancementsToFile(player, alter);
             writePlayerAlterStatsToFile(player, alter);
         }
 
-        playerJson.add("alters", alterJsons);
-
         try {
+            JsonObject playerAltersConfigJson = (JsonObject) PlayerAltersConfig.CODEC.encodeStart(JsonOps.INSTANCE, new PlayerAltersConfig(player)).getOrThrow();
             getPlurifyWorldDir(player).toFile().mkdir();
             playerDir.toFile().mkdir();
             playerFile.createNewFile();
 
             Writer output = new BufferedWriter(new FileWriter(playerFile));
-            output.write(playerJson.toString());
+            output.write(playerAltersConfigJson.toString());
             output.close();
 
             PlurifyMain.LOGGER.info("AltersIOHelper :: Successfully wrote " + alters.size() + " alters for player " + player.getScoreboardName());
