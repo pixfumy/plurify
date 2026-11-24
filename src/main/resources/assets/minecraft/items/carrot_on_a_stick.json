@@ -936,6 +936,20 @@
           }
         },
         {
+          "when": "plurify:avatar/squid/glow_squid",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/squid/glow_squid"
+          }
+        },
+        {
+          "when": "plurify:avatar/squid/squid",
+          "model": {
+            "type": "minecraft:model",
+            "model": "item/plurify/avatar/squid/squid"
+          }
+        },
+        {
           "when": "plurify:avatar/villager/villager",
           "model": {
             "type": "minecraft:model",
