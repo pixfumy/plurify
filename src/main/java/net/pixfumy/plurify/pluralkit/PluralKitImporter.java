@@ -10,8 +10,7 @@ public class PluralKitImporter {
     public static void importAltersFromPluralKit(ServerPlayer player, String pkSystemId) {
         PlayerAltersConfig pkAltersConfig = PluralKitApiClient.requestSystemMembersFromPluralKit(player, pkSystemId);
         if (pkAltersConfig != null) {
-            AltersIOHelper.syncNewAltersToJsonFile(pkAltersConfig);
-            AltersIOHelper.loadPlayerAltersFromFile(player);
+            AltersIOHelper.syncNewAltersToServerPlayer(player, pkAltersConfig);
         }
         // Unlike SyncAltersC2SPacket, this flow is synchronous so we don't need to do a hack to reopen any Gui here
     }

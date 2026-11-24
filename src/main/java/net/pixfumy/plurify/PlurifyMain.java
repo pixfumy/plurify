@@ -86,8 +86,8 @@ public class PlurifyMain implements ModInitializer {
 		ServerPlayNetworking.registerGlobalReceiver(SyncAltersC2SPacket.ID, ((syncAltersC2SPacket, context) -> {
 			LOGGER.info("PlurifyMain$globalReceiver(SyncAltersC2SPacket) :: received SyncAltersC2SPacket: " + syncAltersC2SPacket);
 
-			AltersIOHelper.syncNewAltersToJsonFile(syncAltersC2SPacket.playerAltersConfig());
-			AltersIOHelper.loadPlayerAltersFromFile(context.player());
+			AltersIOHelper.syncNewAltersToServerPlayer(context.player(), syncAltersC2SPacket.playerAltersConfig());
+
 			// return to MainAltersGUI (last user action was triggering this sync from SyncSystemGui) to reflect the newly imported alters pretty seamlessly
 			new MainAltersGui(context.player()).open();
 
