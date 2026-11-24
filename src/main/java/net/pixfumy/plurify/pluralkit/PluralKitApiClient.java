@@ -24,6 +24,8 @@ class PluralKitApiClient {
                 throw new InputMismatchException();
             }
 
+            PlurifyMain.LOGGER.info("PluralKitApiClient :: GET Request to https://api.pluralkit.me/v2/systems/{pkSystemId}/members going out");
+
             Unirest.get("https://api.pluralkit.me/v2/systems/{pkSystemId}/members")
                     .routeParam("pkSystemId", pkSystemId)
                     .asString()
@@ -51,6 +53,7 @@ class PluralKitApiClient {
                         }
 
                         playerAltersConfig.set(new PlayerAltersConfig(player, members));
+                        PlurifyMain.LOGGER.info("PluralKitApiClient :: Received 200 response from PK -> " + playerAltersConfig);
                         player.sendSystemMessage(Component.translatable("plurify.system_message.sync_alters_pk.success").withColor(CommonColors.GREEN));
                     });
         } catch (InputMismatchException e) {
