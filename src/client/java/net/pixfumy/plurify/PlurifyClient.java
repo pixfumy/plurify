@@ -76,16 +76,16 @@ public class PlurifyClient implements ClientModInitializer {
 
 		ClientPlayNetworking.registerGlobalReceiver(SyncAltersS2CPacket.ID, (payload, context) -> {
 			LOGGER.info("PlurifyClient$globalReceiver(SyncAltersS2CPacket) :: received SyncAltersS2CPacket packet: " + payload.toString());
-			AltersIOHelper.syncNewAltersToJsonFile(payload.playerAltersConfig());
+			AltersIOHelper.syncNewAltersToConfigFile(payload.playerAltersConfig());
 			context.player().sendSystemMessage(Component.translatable("plurify.system_message.sync_alters_s2c.success").withColor(CommonColors.GREEN));
 		});
 
 		ClientPlayNetworking.registerGlobalReceiver(RequestAltersSyncS2CPacket.ID, (payload, context) -> {
 			LOGGER.info("PlurifyClient$globalReceiver(RequestAltersSyncS2CPacket) :: received RequestAltersSyncS2CPacket");
 
-			PlayerAltersConfig clientPlayerAltersConfig = AltersIOHelper.getPlayerAltersConfig(context.player().getUUID());
+			PlayerAltersConfig clientPlayerAltersConfig = AltersIOHelper.loadPlayerAltersConfigFromFile(context.player().getUUID());
 			if (clientPlayerAltersConfig != null) {
-				SyncAltersC2SPacket outgoingPacket = new SyncAltersC2SPacket(AltersIOHelper.getPlayerAltersConfig(context.player().getUUID()));
+				SyncAltersC2SPacket outgoingPacket = new SyncAltersC2SPacket(AltersIOHelper.loadPlayerAltersConfigFromFile(context.player().getUUID()));
 
 				LOGGER.info("PlurifyClient$globalReceiver(RequestAltersSyncS2CPacket) :: sending back SyncAltersC2SPacket: " + outgoingPacket);
 
