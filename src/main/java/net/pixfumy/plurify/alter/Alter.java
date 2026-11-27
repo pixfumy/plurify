@@ -97,6 +97,9 @@ public class Alter {
     private CompoundTag shoulderEntityLeft;
     private CompoundTag shoulderEntityRight;
 
+    /**
+     * Creates the default alter for when mod is first introduced to a world/instance.
+     */
     public Alter(ServerPlayer player, boolean copyEntityDataFromPlayer) {
         this(null, player.getName().copy(), player, copyEntityDataFromPlayer);
     }
@@ -119,6 +122,8 @@ public class Alter {
 
         if (copyEntityDataFromPlayer) {
             setAlterEntityDataFromPlayer();
+            setAlterAdvancementsFromPlayer();
+            setAlterStatsFromPlayer();
             this.keepInventory = server.getGameRules().get(GameRules.KEEP_INVENTORY);
         } else {
             this.level = server.overworld();

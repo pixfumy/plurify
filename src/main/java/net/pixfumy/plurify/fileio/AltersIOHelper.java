@@ -4,10 +4,8 @@ import com.google.gson.*;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,29 +30,85 @@ import net.pixfumy.plurify.alter.Alter;
 import net.pixfumy.plurify.alter.AlterBasicDetail;
 import net.pixfumy.plurify.alter.IAltersOwner;
 import net.pixfumy.plurify.alter.PlayerAltersConfig;
-import net.pixfumy.plurify.gui.icon.PlurifyIcon;
-import net.pixfumy.plurify.gui.icon.PlurifyIconUtil;
 import net.pixfumy.plurify.mixin.access.ServerStatsCounterAccess;
-import org.apache.logging.log4j.core.config.plugins.validation.Constraint;
 import org.jspecify.annotations.Nullable;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
 
+/**
+ * Handles common IO operations for Plurify alters.
+ *
+ * Each player has an alters config file under /config/plurify/<playerUuid>/alter_data.json which stores metadata -
+ * the uuid of the selected Alter, as well as the names, uuid's, icons of all alters. This file is shared
+ * across worlds.
+ *
+ * Each alter subsequently has 3 world-specific files - advancements, stats, and entity data.
+ *
+ * The file structure is as follows:
+ *
+ * MULTIPLAYER SERVERS:
+ * .minecraft
+ *      /config/plurify/<playerUuid>/alter_data.json
+ *      /world/plurify/<playerUuid>/
+ *          <alterUuid>-entitydata.nbt
+ *          <alterUuid>-advancements.json
+ *          <alterUuid>-stats.json
+ *
+ * SINGLE PLAYER INSTANCES:
+ *      /config/plurify/<playerUuid>/alter_data.json
+ *      /saves/<world>/plurify/<playerUuid>
+ *          <alterUuid>-entitydata.nbt
+ *          <alterUuid>-advancements.json
+ *          <alterUuid>-stats.json
+ *
+ * Where you may have several playerUuids on a multiplayer server, and several alterUuids for one player.
+ *
+ * Alters are read/written first by metadata, and then by advancements, stats, and entity data.
+ *
+ * @Author pixfumy
+ */
 public class AltersIOHelper {
     private static final String MOD_DIR = PlurifyMain.MOD_ID;
 
+    /**
+     * Attempts to load the player's alters from the instance-wide alters config file, and then
+     * attempts to load the world-specific data (advancements, stats, entity data) for each alter.
+     *
+     * If the mod is being introduced to this instance for the first time, the alters config file will not exist,
+     * so we create a default one copying over the player's data.
+     *
+     * If the mod is being introduced to a world on an instance which does recognize the system, the alters config file
+     * exists but the world-specific files don't, so copy the player data to the currently selected alter and proceed.
+     */
     public static void loadPlayerAltersFromFile(ServerPlayer player) {
-        File playerFile = getPlayerAltersConfigFile(player).toFile();
 
-        if (playerFile.exists()) {
-            PlurifyMain.LOGGER.info("AltersIOHelper :: found alters file for " + player.getScoreboardName());
+        HashMap<UUID, Alter> alters = new HashMap<>();
 
-            PlayerAltersConfig playerAltersConfig = getPlayerAltersConfig(player);
-            UUID currentAlterUuid = playerAltersConfig.currentAlterUuid();
+        // Read the alter_data.json file if it exists
+        PlayerAltersConfig playerAltersConfig = loadPlayerAltersConfigFromFile(player);
 
-            HashMap<UUID, Alter> alters = new HashMap<>();
+        // If not, create a default alter, copying the player's entity data, achievements, stats
+        if (playerAltersConfig == null) {
+            PlurifyMain.LOGGER.info("AltersIOHelper :: No alter_data.json found for " + player.getScoreboardName() + ", creating 1 default alter.");
+
+            Alter alter = new Alter(player, true);
+            ((IAltersOwner) player).plurify$setAlters(new HashMap<>() {{put(alter.getUuid(), alter);}});
+            ((IAltersOwner) player).plurify$setCurrentAlter(alter);
+
+            playerAltersConfig = new PlayerAltersConfig(player);
+        }
+
+        UUID currentAlterUuid = playerAltersConfig.currentAlterUuid();
+
+
+        // If the world has a non-empty /plurify directory, read world-specific data for all alters.
+        File plurifyWorldPlayerDir = getPlurifyWorldPlayerDir(player).toFile();
+        if (plurifyWorldPlayerDir.isDirectory() && plurifyWorldPlayerDir.list().length > 0) {
+
+            PlurifyMain.LOGGER.info("AltersIOHelper :: loading " + playerAltersConfig.alters().size()
+                    + " alters for player " + player.getScoreboardName());
 
             for (AlterBasicDetail alterBasicDetail : playerAltersConfig.alters()) {
                 Alter alter = new Alter(alterBasicDetail.uuid(), Component.literal(alterBasicDetail.name()), player, false);
@@ -64,7 +118,7 @@ public class AltersIOHelper {
                 readPlayerAlterStatsFromFile(player, alter);
 
                 if (currentAlterUuid.equals(alter.getUuid())) {
-                    ((IAltersOwner)player).plurify$switchToAlter(alter);
+                    ((IAltersOwner) player).plurify$switchToAlter(alter);
                 }
 
                 alter.setIcon(alterBasicDetail.icon().getAsItemStack());
@@ -72,17 +126,34 @@ public class AltersIOHelper {
                 alters.put(alter.getUuid(), alter);
             }
 
-            PlurifyMain.LOGGER.info("AltersIOHelper :: Successfully loaded " + alters.size() + " alters for player " + player.getScoreboardName());
+            PlurifyMain.LOGGER.info("AltersIOHelper :: Successfully loaded " + playerAltersConfig.alters().size()
+                    + " alters for player " + player.getScoreboardName());
+        } else { // Otherwise, copy the entity data of the player to the currently selected alter and create all other alters from scratch
 
-            ((IAltersOwner) player).plurify$setAlters(alters);
-        } else {
-            PlurifyMain.LOGGER.info("AltersIOHelper :: No alter_json.data found for " + player.getScoreboardName() + ", creating 1 default alter.");
+            PlurifyMain.LOGGER.info("AltersIOHelper :: Found alter_data.json but no world-specific files for player "
+                    + player.getScoreboardName() + ". Copying player data to current alter.");
 
-            Alter alter = new Alter(player, true);
-            ((IAltersOwner) player).plurify$setAlters(new HashMap<>() {{put(alter.getUuid(), alter);}});
-            ((IAltersOwner) player).plurify$setCurrentAlter(alter);
-            writePlayerAltersToFile(player);
+            for (AlterBasicDetail alterBasicDetail : playerAltersConfig.alters()) {
+
+                boolean isCurrentAlter = currentAlterUuid.equals(alterBasicDetail.uuid());
+
+                Alter alter = new Alter(
+                        alterBasicDetail.uuid(),
+                        Component.literal(alterBasicDetail.name()),
+                        player,
+                        isCurrentAlter // copyEntityDataFromPlayer if and only if isCurrentAlter
+                );
+
+                alter.setIcon(alterBasicDetail.icon().getAsItemStack());
+
+                alters.put(alter.getUuid(), alter);
+            }
         }
+
+        // in all cases, set the alters to the player and switch to the current alter
+        ((IAltersOwner) player).plurify$setAlters(alters);
+        ((IAltersOwner) player).plurify$switchToAlter(alters.get(currentAlterUuid));
+
     }
 
     public static void writePlayerAltersToFile(ServerPlayer player) {
@@ -115,10 +186,10 @@ public class AltersIOHelper {
         }
     }
 
-    private static void readPlayerAlterEntityDataFromFile(ServerPlayer player, Alter alter) {
+    private static int readPlayerAlterEntityDataFromFile(ServerPlayer player, Alter alter) {
         Path entityDataFile = getPlurifyWorldPlayerAlterDataFile(player, alter);
         if (!entityDataFile.toFile().exists()) {
-            return;
+            return -1;
         }
 
         try {
@@ -172,8 +243,12 @@ public class AltersIOHelper {
 
             alter.setKeepInventory(nbtReadView.read("KeepInventory", Codec.BOOL).get());
 
+            return 0;
+
         } catch (IOException | NoSuchElementException | NullPointerException e) {
             PlurifyMain.LOGGER.error("Error reading entity data file " + entityDataFile);
+
+            return 1;
         }
     }
 
@@ -248,16 +323,19 @@ public class AltersIOHelper {
         }
     }
 
-    private static void readPlayerAlterAdvancementsFromFile(ServerPlayer player, Alter alter) {
+    private static int readPlayerAlterAdvancementsFromFile(ServerPlayer player, Alter alter) {
         File alterAdvancementsFile = getPlurifyWorldPlayerAlterAdvancementsFile(player, alter).toFile();
         try {
-            if (alterAdvancementsFile.exists()) {
-                JsonObject alterAdvancementsJson = (JsonObject) JsonParser.parseReader(new FileReader(alterAdvancementsFile));
-                PlayerAdvancements.Data playerAdvancementsData = AdvancementUtil.decodeAdvancementsFromJson(alterAdvancementsJson);
-                alter.setAdvancements(playerAdvancementsData);
+            if (!alterAdvancementsFile.exists()) {
+                return -1;
             }
+            JsonObject alterAdvancementsJson = (JsonObject) JsonParser.parseReader(new FileReader(alterAdvancementsFile));
+            PlayerAdvancements.Data playerAdvancementsData = AdvancementUtil.decodeAdvancementsFromJson(alterAdvancementsJson);
+            alter.setAdvancements(playerAdvancementsData);
+            return 0;
         } catch (FileNotFoundException e) {
             PlurifyMain.LOGGER.error("Error reading alter advancements file " + alterAdvancementsFile.getName());
+            return 1;
         }
     }
 
@@ -275,16 +353,19 @@ public class AltersIOHelper {
         }
     }
 
-    private static void readPlayerAlterStatsFromFile(ServerPlayer player, Alter alter) {
+    private static int readPlayerAlterStatsFromFile(ServerPlayer player, Alter alter) {
         File alterStatsFile = getPlurifyWorldPlayerAlterStatsFile(player, alter).toFile();
         try {
-            if (alterStatsFile.exists()) {
-                JsonObject alterStatsJson = (JsonObject) JsonParser.parseReader(new FileReader(alterStatsFile));
-                Map<Stat<?>, Integer> serverStatsCounter = ServerStatsCounterAccess.getSTATS_CODEC().decode(JsonOps.INSTANCE, alterStatsJson).getOrThrow().getFirst();
-                alter.setStats(serverStatsCounter);
+            if (!alterStatsFile.exists()) {
+                return -1;
             }
+            JsonObject alterStatsJson = (JsonObject) JsonParser.parseReader(new FileReader(alterStatsFile));
+            Map<Stat<?>, Integer> serverStatsCounter = ServerStatsCounterAccess.getSTATS_CODEC().decode(JsonOps.INSTANCE, alterStatsJson).getOrThrow().getFirst();
+            alter.setStats(serverStatsCounter);
+            return 0;
         } catch (FileNotFoundException e) {
             PlurifyMain.LOGGER.error("Error reading alter stats file " + alterStatsFile.getName());
+            return 1;
         }
     }
 
@@ -305,9 +386,9 @@ public class AltersIOHelper {
     /**
      * Used to combine the given PlayerAltersConfig into the existing alter_data.json file. Used for S2C sync
      * since the alters are not needed immediately by the client - they just need to be persisted to the
-     * client-side alter_data.json
+     * client-side config file.
      */
-    public static void syncNewAltersToJsonFile(PlayerAltersConfig newPlayerAltersConfig) {
+    public static void syncNewAltersToConfigFile(PlayerAltersConfig newPlayerAltersConfig) {
         PlurifyMain.LOGGER.info("AltersIOHelper :: syncing new alters to json");
         try {
             PlayerAltersConfig combinedPlayerAltersConfig = combineNewAltersToExistingPlayerConfig(newPlayerAltersConfig);
@@ -325,7 +406,7 @@ public class AltersIOHelper {
 
     /**
      * Used to combine the given PlayerAltersConfig into the existing ServerPlayer. New alters only have their
-     * headers (name, uuid, icon) created, no entity data is created until the player switches to those new alters.
+     * metadata (name, uuid, icon) created, no entity data is created until the player switches to those new alters.
      */
     public static void syncNewAltersToServerPlayer(ServerPlayer player, PlayerAltersConfig newPlayerAltersConfig) {
         PlurifyMain.LOGGER.info("AltersIOHelper :: syncing new alters to ServerPlayer");
@@ -350,7 +431,7 @@ public class AltersIOHelper {
     private static PlayerAltersConfig combineNewAltersToExistingPlayerConfig(PlayerAltersConfig newPlayerAltersConfig) {
         List<AlterBasicDetail> combinedAlters = new ArrayList<>();
 
-        PlayerAltersConfig oldPlayerAltersConfig = getPlayerAltersConfig(newPlayerAltersConfig.playerUuid());
+        PlayerAltersConfig oldPlayerAltersConfig = loadPlayerAltersConfigFromFile(newPlayerAltersConfig.playerUuid());
         if (oldPlayerAltersConfig != null) {
             combinedAlters.addAll(oldPlayerAltersConfig.alters());
         }
@@ -376,12 +457,14 @@ public class AltersIOHelper {
         return combinedPlayerAltersConfig;
     }
 
-    public static @Nullable PlayerAltersConfig getPlayerAltersConfig(UUID playerUUID) {
+    public static @Nullable PlayerAltersConfig loadPlayerAltersConfigFromFile(UUID playerUUID) {
         File playerFile = getPlayerAltersConfigFile(playerUUID).toFile();
         try {
             if (!playerFile.exists()) {
                 return null;
             }
+            PlurifyMain.LOGGER.info("AltersIOHelper :: found alter_data.json file for " + playerUUID);
+
             JsonObject altersJson = (JsonObject) JsonParser.parseReader(new FileReader(playerFile));
             PlayerAltersConfig playerAltersConfig = PlayerAltersConfig.CODEC.decode(JsonOps.INSTANCE, altersJson).getOrThrow().getFirst();
             return playerAltersConfig;
@@ -390,8 +473,8 @@ public class AltersIOHelper {
         }
     }
 
-    public static PlayerAltersConfig getPlayerAltersConfig(Player player) {
-        return getPlayerAltersConfig(player.getUUID());
+    public static @Nullable PlayerAltersConfig loadPlayerAltersConfigFromFile(Player player) {
+        return loadPlayerAltersConfigFromFile(player.getUUID());
     }
 
     // ---- HELPER METHODS FOR NAVIGATINGTO PLAYER/ALTER FILES ----
