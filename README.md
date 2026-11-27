@@ -1,5 +1,8 @@
 # Plurify
-By [snuffypuffs](https://linktr.ee/snuffypuffs) and pixfumy 
+- Art and direction done by [snuffypuffs](https://linktr.ee/snuffypuffs)
+- Developed by pixfumy
+
+Join the [discord server](https://discord.gg/AjQ8REr5eW) if you have any questions/suggestions about the mod, if you'd like to playtest/report bugs, or if you'd just like to hang out. We have an SMP! Systems and non-systems are welcome.
 ## Overview
 
 This mod is intended for use by plural folks, but can be loaded onto servers shared by
@@ -157,7 +160,8 @@ if you're viewing it through tools like NameMC, if you care about that kind of t
 This mod works with other mods/datapacks that add custom advancements.
 
 This is not true for stats/attributes/status effects, as those things aren't yet data-driven,
-so they'd need to be implemented in Plurify on a per-mod basis.
+so they'd need to be implemented in Plurify on a per-mod basis. Same goes for other mods that introduce
+completely new player data.
 
 This mod should never have a game-crashing incompatibility with other mods - if you find something of this
 sort, let me know!
