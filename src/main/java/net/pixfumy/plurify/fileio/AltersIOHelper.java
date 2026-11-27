@@ -1,6 +1,8 @@
 package net.pixfumy.plurify.fileio;
 
 import com.google.gson.*;
+import com.google.gson.stream.JsonWriter;
+import com.mojang.authlib.minecraft.client.ObjectMapper;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.loader.api.FabricLoader;
@@ -107,7 +109,7 @@ public class AltersIOHelper {
         File plurifyWorldPlayerDir = getPlurifyWorldPlayerDir(player).toFile();
         if (plurifyWorldPlayerDir.isDirectory() && plurifyWorldPlayerDir.list().length > 0) {
 
-            PlurifyMain.LOGGER.info("AltersIOHelper :: loading " + playerAltersConfig.alters().size()
+            PlurifyMain.LOGGER.info("AltersIOHelper :: loading entity data, stats, and advancements for " + playerAltersConfig.alters().size()
                     + " alters for player " + player.getScoreboardName());
 
             for (AlterBasicDetail alterBasicDetail : playerAltersConfig.alters()) {
@@ -126,11 +128,11 @@ public class AltersIOHelper {
                 alters.put(alter.getUuid(), alter);
             }
 
-            PlurifyMain.LOGGER.info("AltersIOHelper :: Successfully loaded " + playerAltersConfig.alters().size()
+            PlurifyMain.LOGGER.info("AltersIOHelper :: Successfully loaded entity data, stats, and advancements for " + playerAltersConfig.alters().size()
                     + " alters for player " + player.getScoreboardName());
         } else { // Otherwise, copy the entity data of the player to the currently selected alter and create all other alters from scratch
 
-            PlurifyMain.LOGGER.info("AltersIOHelper :: Found alter_data.json but no world-specific files for player "
+            PlurifyMain.LOGGER.info("AltersIOHelper :: Found no world-specific files for player "
                     + player.getScoreboardName() + ". Copying player data to current alter.");
 
             for (AlterBasicDetail alterBasicDetail : playerAltersConfig.alters()) {
@@ -175,6 +177,8 @@ public class AltersIOHelper {
             getPlurifyWorldDir(player).toFile().mkdir();
             playerDir.toFile().mkdir();
             playerFile.createNewFile();
+
+            JsonWriter jsonWriter = new JsonWriter(new FileWriter(playerFile));
 
             Writer output = new BufferedWriter(new FileWriter(playerFile));
             output.write(playerAltersConfigJson.toString());
@@ -538,19 +542,19 @@ public class AltersIOHelper {
     /**
      * World-specific file containing NBT data for a single alter for a single player
      */
-    private static Path getPlurifyWorldPlayerAlterDataFile(Player player, Alter alter) {
+    static Path getPlurifyWorldPlayerAlterDataFile(Player player, Alter alter) {
         Path plurifyWorldPlayerDir = getPlurifyWorldPlayerDir(player);
         plurifyWorldPlayerDir.toFile().mkdir();
         return plurifyWorldPlayerDir.resolve(alter.getUuid() + "-" + "entitydata.nbt");
     }
 
-    private static Path getPlurifyWorldPlayerAlterAdvancementsFile(Player player, Alter alter) {
+    public static Path getPlurifyWorldPlayerAlterAdvancementsFile(Player player, Alter alter) {
         Path plurifyWorldPlayerDir = getPlurifyWorldPlayerDir(player);
         plurifyWorldPlayerDir.toFile().mkdir();
         return plurifyWorldPlayerDir.resolve(alter.getUuid() + "-" + "advancements.json");
     }
 
-    private static Path getPlurifyWorldPlayerAlterStatsFile(Player player, Alter alter) {
+    static Path getPlurifyWorldPlayerAlterStatsFile(Player player, Alter alter) {
         Path plurifyWorldPlayerDir = getPlurifyWorldPlayerDir(player);
         plurifyWorldPlayerDir.toFile().mkdir();
         return plurifyWorldPlayerDir.resolve(alter.getUuid() + "-" + "stats.json");

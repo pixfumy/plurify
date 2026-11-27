@@ -1,0 +1,23 @@
+{
+  "uuid": "4e9f73cf-14c6-4842-98f4-0500f547e585",
+  "inGameName": "test-mock-player",
+  "currentAlterUuid": "f31e75a6-58b1-4538-8c8d-858f29de7790",
+  "alters": [
+    {
+      "uuid": "2686ca7c-c493-4590-b815-9214f26de406",
+      "name": "test-mock-player",
+      "icon": {
+        "item": "minecraft:carrot_on_a_stick",
+        "plurifyIconId": "plurify:avatar/sword/iron"
+      }
+    },
+    {
+      "uuid": "f31e75a6-58b1-4538-8c8d-858f29de7790",
+      "name": "test-mock-alter",
+      "icon": {
+        "item": "minecraft:carrot_on_a_stick",
+        "plurifyIconId": "plurify:avatar/dog/pale_dog"
+      }
+    }
+  ]
+}

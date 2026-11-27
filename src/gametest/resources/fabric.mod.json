@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "id": "plurify-test",
+  "version": "1.0.0",
+  "name": "Plurify GameTest",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "net.pixfumy.plurify.PlurifyBasicGameTest"
+    ]
+  }
+}

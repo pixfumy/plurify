@@ -30,20 +30,26 @@ dependencies {
 	implementation include("eu.pb4:sgui:2.2.1+26.3")
 	implementation include("eu.pb4:polymer-resource-pack:0.18.7+26.3")
 
-	Set<String> fabricApiModules = [
-			'fabric-api-base',
-			'fabric-networking-api-v1',
-			'fabric-lifecycle-events-v1',
-			'fabric-key-mapping-api-v1',
-			'fabric-resource-loader-v1'
-	]
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-	// Add each fabric API module as a dependency
-	fabricApiModules.forEach {
-		implementation include(fabricApi.module(it, project.fabric_api_version))
-	}
+	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
+	implementation "org.mockito:mockito-junit-jupiter:5.24.0"
 
 	implementation include("com.konghq:unirest-java:3.11.09:standalone")
+}
+
+test {
+	useJUnitPlatform()
+}
+
+fabricApi {
+	configureTests {
+		createSourceSet = true
+		modId = "plurify-test"
+		enableGameTests = true // Default is true
+		enableClientGameTests = true // Default is true
+		eula = true // By setting this to true, you agree to the Minecraft EULA.
+	}
 }
 
 processResources {
